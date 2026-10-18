@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.campus.identity.infrastructure.dal.dataobject;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.framework.tenant.core.aop.TenantIgnore;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.EqualsAndHashCode;
 
 /** M01.02-owned public campus directory row. */
 @TableName("campus_campus")
+@TenantIgnore // Campus scope is enforced by campus policy, not the upstream SaaS tenant column.
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CampusDO extends BaseDO {

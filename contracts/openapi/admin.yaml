@@ -16,11 +16,215 @@ servers:
 tags:
   - name: ops
     description: 运维探针（M00.01）
+  - name: session
+    description: 服务端固定平台租户的校园后台会话
   - name: membership-verification
     description: 成员认证审核（M01.03）
+  - name: media
+    description: 认证材料受控读取与审计（M02.03）
 security:
   - bearerAuth: []
 paths:
+  /admin-api/campus/v1/session/login:
+    post:
+      operationId: loginCampusAdminSession
+      tags: [session]
+      summary: 登录固定平台租户的校园管理端
+      description: |
+        请求不接受 tenantId 或社交登录字段。服务端只在 campus.platform-tenant-id 中校验后台账号，
+        并且只返回 ADMIN audience、平台租户的 token；tenant-id 请求头不能改变认证租户。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/CampusAdminLoginRequest"
+      responses:
+        "200":
+          description: 校园后台会话
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusAdminSessionResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+  /admin-api/campus/v1/session/refresh:
+    post:
+      operationId: refreshCampusAdminSession
+      tags: [session]
+      summary: 刷新固定平台租户的校园管理端会话
+      description: 只接受 JSON refreshToken；MEMBER audience 或其他租户的 refresh token 统一拒绝。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/CampusAdminRefreshRequest"
+      responses:
+        "200":
+          description: 刷新后的完整校园后台会话
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusAdminSessionResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+  /admin-api/campus/v1/session/logout:
+    post:
+      operationId: logoutCampusAdminSession
+      tags: [session]
+      summary: 退出当前校园管理端会话
+      description: 无请求体；只撤销 Bearer 中当前 ADMIN、平台租户的真实 access token。
+      responses:
+        "200":
+          description: 当前会话已撤销
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusBooleanResponse"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+  /admin-api/campus/v1/context:
+    get:
+      operationId: getCampusAdminContext
+      tags: [session]
+      summary: 获得当前后台操作者的学校、校区与能力范围
+      responses:
+        "200":
+          description: 后台授权上下文
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusAdminContextResponse"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+  /admin-api/campus/v1/verifications:
+    get:
+      operationId: listCampusAdminVerifications
+      tags: [membership-verification]
+      summary: 按后台授权范围分页查询认证申请
+      parameters:
+        - {name: schoolId, in: query, required: true, schema: {$ref: "./components/schemas.yaml#/CampusId"}}
+        - {name: campusId, in: query, required: false, schema: {$ref: "./components/schemas.yaml#/CampusId"}}
+        - {name: status, in: query, required: false, schema: {type: string, enum: [PENDING, APPROVED, REJECTED, REVOKED], default: PENDING}}
+        - {name: page, in: query, required: false, schema: {type: integer, minimum: 1, default: 1}}
+        - {name: pageSize, in: query, required: false, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        "200":
+          description: 授权范围内的认证队列
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/VerificationQueueResponseEnvelope"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+  /admin-api/campus/v1/verifications/{applicationId}:
+    get:
+      operationId: getCampusAdminVerification
+      tags: [membership-verification]
+      summary: 读取授权范围内的认证申请详情
+      parameters:
+        - {name: applicationId, in: path, required: true, schema: {$ref: "./components/schemas.yaml#/CampusId"}}
+      responses:
+        "200":
+          description: 脱敏认证详情
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/VerificationDetailResponseEnvelope"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+  /admin-api/campus/v1/media/assets/{assetId}/downloads:
+    post:
+      operationId: issueVerificationEvidenceDownload
+      tags: [media]
+      summary: 为有权审核的操作者签发认证材料代理令牌
+      description: |
+        operator 只取当前后台登录事实。服务端从 asset binding 的 proofReference 找到认证申请，
+        再校验学校/校区 VERIFICATION_REVIEW 授权。caseReference 必须是该 proof 对应的 applicationId，
+        reason 必须是操作者本次填写的查看原因；缺少或错配案件依据、普通运营、跨校或未知 proof
+        均返回同一不可探测响应。
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            $ref: "./components/schemas.yaml#/CampusId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/AdminMediaDownloadRequest"
+      responses:
+        "200":
+          description: 短期、单 operator、单 asset/generation 的代理读取令牌
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/MediaDownloadGrantResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "404":
+          $ref: "./components/responses.yaml#/NotFound"
+        "503":
+          $ref: "./components/responses.yaml#/ServiceUnavailable"
+  /admin-api/campus/v1/media/downloads/{deliveryToken}:
+    get:
+      operationId: readVerificationEvidenceDownload
+      tags: [media]
+      summary: 通过短期令牌代理读取认证材料
+      description: |
+        仍要求签发令牌的同一后台 operator。每次打开都重新检查当前资产、binding、proof 时效与
+        学校/校区审核授权；撤权、跨 actor 重放、换 generation 或过期均在打开对象前拒绝。
+      parameters:
+        - name: deliveryToken
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 32
+            maxLength: 128
+      responses:
+        "200":
+          description: 当前授权认证材料的真实字节
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+            application/pdf:
+              schema: { type: string, format: binary }
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "404":
+          $ref: "./components/responses.yaml#/NotFound"
+        "503":
+          $ref: "./components/responses.yaml#/ServiceUnavailable"
   /admin-api/campus/v1/verifications/{id}/review:
     post:
       operationId: reviewMembershipVerification

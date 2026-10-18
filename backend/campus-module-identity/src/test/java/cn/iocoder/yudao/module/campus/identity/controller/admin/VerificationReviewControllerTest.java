@@ -1,11 +1,13 @@
 package cn.iocoder.yudao.module.campus.identity.controller.admin;
 
 import cn.iocoder.yudao.framework.security.core.LoginUser;
+import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.module.campus.common.api.CampusExceptionHandler;
 import cn.iocoder.yudao.module.campus.identity.application.VerificationApplicationService;
 import cn.iocoder.yudao.module.campus.identity.application.verification.ReviewDecision;
 import cn.iocoder.yudao.module.campus.identity.application.verification.ReviewVerificationCommand;
 import cn.iocoder.yudao.module.campus.identity.application.verification.VerificationReviewResult;
+import cn.iocoder.yudao.module.campus.identity.controller.CampusPlatformPrincipalGuard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,8 @@ class VerificationReviewControllerTest {
     @BeforeEach
     void setUp() {
         service = mock(VerificationApplicationService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new VerificationReviewController(service))
+        mockMvc = MockMvcBuilders.standaloneSetup(new VerificationReviewController(service,
+                        new CampusPlatformPrincipalGuard(1L)))
                 .setControllerAdvice(new CampusExceptionHandler()).build();
     }
 
@@ -93,6 +96,8 @@ class VerificationReviewControllerTest {
     private static void authenticate(long userId) {
         LoginUser user = new LoginUser();
         user.setId(userId);
+        user.setUserType(UserTypeEnum.ADMIN.getValue());
+        user.setTenantId(1L);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user, null));
     }
 }

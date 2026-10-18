@@ -54,6 +54,10 @@ wx:
 --- #################### 校园相关配置 ####################
 
 campus:
+  media:
+    # 没有真实私有存储适配器时保持 disabled，使媒体模块启动失败而不是把本地目录当生产桶。
+    storage: ${CAMPUS_MEDIA_STORAGE:disabled}
+    local-signing-key: ${CAMPUS_MEDIA_LOCAL_SIGNING_KEY:}
   payment:
     # 生产必须显式指定真实网关；取值 mock 会被启动守卫拒绝
     gateway: ${CAMPUS_PAYMENT_GATEWAY}

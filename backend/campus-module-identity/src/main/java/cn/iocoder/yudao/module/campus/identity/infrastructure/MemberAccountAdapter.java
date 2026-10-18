@@ -10,7 +10,7 @@ import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.module.campus.common.api.CampusApiException;
 import cn.iocoder.yudao.module.campus.common.api.CampusErrorCodes;
-import cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort;
+import cn.iocoder.yudao.module.campus.identity.application.port.UpstreamMemberAccountPort;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
 import cn.iocoder.yudao.module.member.service.user.MemberUserService;
 import cn.iocoder.yudao.module.member.service.auth.MemberAuthService;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 /** Reuses upstream member records, member-only OAuth2 tokens and audit logs. */
 @Component
 @RequiredArgsConstructor
-public class MemberAccountAdapter implements AccountStatusPort {
+public class MemberAccountAdapter implements UpstreamMemberAccountPort {
 
     private static final String DEFAULT_WECHAT_NICKNAME = "微信用户";
 
@@ -48,7 +48,7 @@ public class MemberAccountAdapter implements AccountStatusPort {
 
     public MemberUserDO getRequiredActiveMember(Long memberId) {
         MemberUserDO member = memberUserService.getUser(memberId);
-        if (member == null || CommonStatusEnum.isDisable(member.getStatus())) {
+        if (member == null || !CommonStatusEnum.ENABLE.getStatus().equals(member.getStatus())) {
             writeLoginLog(member, LoginResultEnum.USER_DISABLED);
             throw new CampusApiException(CampusErrorCodes.ACCOUNT_DISABLED);
         }

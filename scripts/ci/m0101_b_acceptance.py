@@ -19,6 +19,7 @@ BACKEND = ROOT / "backend"
 SUITE_PREFIX = "cn.iocoder.yudao.server.integration."
 PREPARATION = "M0101BDatabasePreparationIT"
 FULL_SERVER = "M0101MemberOAuth2IntegrationIT"
+TENANT_BOUNDARY = "M0203TenantBoundaryIntegrationIT"
 REQUIRED_ENV = ("CAMPUS_M0101_B_MYSQL_URL", "CAMPUS_M0101_B_MYSQL_USERNAME", "CAMPUS_M0101_B_MYSQL_PASSWORD",
                 "CAMPUS_M0101_B_VALKEY_URL", "CAMPUS_M0101_B_SCHEMA_GUARD", "CAMPUS_M0101_B_PREPARE")
 
@@ -185,13 +186,23 @@ def main() -> int:
                 full_exit, full_evidence, full_reason, full_diagnostic = execute(maven, FULL_SERVER)
                 suites[FULL_SERVER] = {**(full_evidence or {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}),
                                         "exitCode": full_exit, "reason": full_reason, "diagnostic": full_diagnostic}
-                status, reasons = ("PASS", []) if full_reason is None else ("FAIL", [f"full_server:{full_reason}"])
+                if full_reason:
+                    status, reasons = "FAIL", [f"full_server:{full_reason}"]
+                else:
+                    tenant_exit, tenant_evidence, tenant_reason, tenant_diagnostic = execute(maven, TENANT_BOUNDARY)
+                    suites[TENANT_BOUNDARY] = {
+                        **(tenant_evidence or {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}),
+                        "exitCode": tenant_exit, "reason": tenant_reason, "diagnostic": tenant_diagnostic,
+                    }
+                    status, reasons = (("PASS", []) if tenant_reason is None
+                                       else ("FAIL", [f"tenant_boundary:{tenant_reason}"]))
     report = args.report if args.report.is_absolute() else ROOT / args.report
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps({"module": "M01.01", "level": "B", "status": status, "generatedAt": datetime.now(timezone.utc).isoformat(),
                                   "sourceSha": source_sha(), "mysqlConfigured": mysql_ready,
                                   "valkeyConfigured": valkey_ready,
-                                  "requiredTests": [PREPARATION, FULL_SERVER], "requiredEnvironmentCount": len(REQUIRED_ENV),
+                                  "requiredTests": [PREPARATION, FULL_SERVER, TENANT_BOUNDARY],
+                                  "requiredEnvironmentCount": len(REQUIRED_ENV),
                                   "suites": suites, "reasons": reasons}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(status)
     for reason in reasons:

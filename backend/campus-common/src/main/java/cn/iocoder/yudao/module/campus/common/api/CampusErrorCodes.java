@@ -125,6 +125,56 @@ public interface CampusErrorCodes {
             new ErrorCode(1_040_001_027, "没有审核该认证申请的权限"),
             HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
 
+    // ========== M02 媒体与内容基础 ===========
+
+    CampusErrorSpec UPLOAD_PURPOSE_DENIED = CampusErrorSpec.of("UPLOAD_PURPOSE_DENIED",
+            new ErrorCode(1_040_002_000, "该用途不允许上传此类文件"),
+            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec FILE_SIZE_EXCEEDED = CampusErrorSpec.of("FILE_SIZE_EXCEEDED",
+            new ErrorCode(1_040_002_001, "文件大小超过用途限制"),
+            HttpStatus.BAD_REQUEST, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec UPLOAD_QUOTA_EXCEEDED = CampusErrorSpec.of("UPLOAD_QUOTA_EXCEEDED",
+            new ErrorCode(1_040_002_002, "待上传文件数量超过限制，请稍后重试"),
+            HttpStatus.TOO_MANY_REQUESTS, CampusRetryAction.RETRY);
+
+    CampusErrorSpec STORAGE_UNAVAILABLE = CampusErrorSpec.of("STORAGE_UNAVAILABLE",
+            new ErrorCode(1_040_002_003, "私有文件存储暂不可用"),
+            HttpStatus.SERVICE_UNAVAILABLE, CampusRetryAction.RETRY);
+
+    CampusErrorSpec MEDIA_PURPOSE_MISMATCH = CampusErrorSpec.of("MEDIA_PURPOSE_MISMATCH",
+            new ErrorCode(1_040_002_004, "文件用途与业务资源不匹配"),
+            HttpStatus.CONFLICT, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec MEDIA_ALREADY_BOUND = CampusErrorSpec.of("MEDIA_ALREADY_BOUND",
+            new ErrorCode(1_040_002_005, "文件已经绑定到其他业务资源"),
+            HttpStatus.CONFLICT, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec FILE_INVALID = CampusErrorSpec.of("FILE_INVALID",
+            new ErrorCode(1_040_002_006, "文件内容与声明不一致或无法安全解析"),
+            HttpStatus.BAD_REQUEST, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec RESOURCE_NOT_ACCESSIBLE = CampusErrorSpec.of("RESOURCE_NOT_ACCESSIBLE",
+            new ErrorCode(1_040_002_007, "资源不存在或不可访问"),
+            HttpStatus.NOT_FOUND, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec MEDIA_UNAVAILABLE = CampusErrorSpec.of("MEDIA_UNAVAILABLE",
+            new ErrorCode(1_040_002_008, "文件当前不可用"),
+            HttpStatus.GONE, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec CONTENT_VERSION_CHANGED = CampusErrorSpec.of("CONTENT_VERSION_CHANGED",
+            new ErrorCode(1_040_002_009, "内容版本已变化，请重新发起检查"),
+            HttpStatus.CONFLICT, CampusRetryAction.USER_FIX);
+
+    CampusErrorSpec INSPECTION_NOT_READY = CampusErrorSpec.of("INSPECTION_NOT_READY",
+            new ErrorCode(1_040_002_010, "内容检查尚未进入可人工处理状态"),
+            HttpStatus.CONFLICT, CampusRetryAction.RETRY);
+
+    CampusErrorSpec INSPECTION_CONFLICT = CampusErrorSpec.of("INSPECTION_CONFLICT",
+            new ErrorCode(1_040_002_011, "内容检查状态已变化，请刷新后重试"),
+            HttpStatus.CONFLICT, CampusRetryAction.USER_FIX);
+
     // ========== 事件契约（消费者可观察失败） ==========
 
     CampusErrorSpec EVENT_ENVELOPE_INVALID = CampusErrorSpec.of("CAMPUS_EVENT_ENVELOPE_INVALID",
@@ -188,6 +238,18 @@ public interface CampusErrorCodes {
             MEMBERSHIP_REVOKED,
             VERIFICATION_METHOD_DISABLED,
             VERIFICATION_REVIEW_FORBIDDEN,
+            UPLOAD_PURPOSE_DENIED,
+            FILE_SIZE_EXCEEDED,
+            UPLOAD_QUOTA_EXCEEDED,
+            STORAGE_UNAVAILABLE,
+            MEDIA_PURPOSE_MISMATCH,
+            MEDIA_ALREADY_BOUND,
+            FILE_INVALID,
+            RESOURCE_NOT_ACCESSIBLE,
+            MEDIA_UNAVAILABLE,
+            CONTENT_VERSION_CHANGED,
+            INSPECTION_NOT_READY,
+            INSPECTION_CONFLICT,
             EVENT_ENVELOPE_INVALID,
             EVENT_PAYLOAD_FORBIDDEN,
             EVENT_VERSION_UNSUPPORTED,

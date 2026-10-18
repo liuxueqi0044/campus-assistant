@@ -51,6 +51,161 @@ CampusErrorDetail:
       type: string
       description: 409 冲突时的当前状态
 
+CampusAdminLoginRequest:
+  type: object
+  additionalProperties: false
+  required: [username, password]
+  properties:
+    username:
+      type: string
+      pattern: "^[a-zA-Z0-9]{4,30}$"
+    password:
+      type: string
+      minLength: 4
+      maxLength: 16
+      writeOnly: true
+    captchaVerification:
+      type: string
+      maxLength: 2048
+      description: 仅服务端启用图形验证码时必填。
+
+CampusAdminRefreshRequest:
+  type: object
+  additionalProperties: false
+  required: [refreshToken]
+  properties:
+    refreshToken:
+      type: string
+      minLength: 1
+      maxLength: 256
+      writeOnly: true
+
+CampusAdminSession:
+  type: object
+  additionalProperties: false
+  required: [userId, accessToken, refreshToken, expiresAt]
+  properties:
+    userId:
+      $ref: "#/CampusId"
+    accessToken:
+      type: string
+      minLength: 1
+      maxLength: 256
+    refreshToken:
+      type: string
+      minLength: 1
+      maxLength: 256
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+
+CampusAdminSessionResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/CampusAdminSession"
+
+CampusBooleanResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          type: boolean
+
+CampusAdminContextResponse:
+  type: object
+  additionalProperties: false
+  required: [operatorId, authorizationVersion, permissions, schools, menus]
+  properties:
+    operatorId: {$ref: "#/CampusId"}
+    authorizationVersion: {type: integer, format: int64, minimum: 1}
+    permissions: {type: array, items: {type: string}}
+    schools:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [schoolId, name, actions, campuses]
+        properties:
+          schoolId: {$ref: "#/CampusId"}
+          name: {type: string}
+          actions: {type: array, items: {type: string}}
+          campuses:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [campusId, name, actions]
+              properties:
+                campusId: {$ref: "#/CampusId"}
+                name: {type: string}
+                actions: {type: array, items: {type: string}}
+    menus: {type: array, items: {type: string}}
+
+VerificationQueueResponse:
+  type: object
+  additionalProperties: false
+  required: [list, total, page, pageSize]
+  properties:
+    list:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [applicationId, schoolId, campusId, method, status, version, submittedAt]
+        properties:
+          applicationId: {$ref: "#/CampusId"}
+          schoolId: {$ref: "#/CampusId"}
+          campusId: {$ref: "#/CampusId"}
+          method: {type: string}
+          status: {type: string}
+          version: {type: integer, format: int64, minimum: 1}
+          submittedAt: {$ref: "#/CampusTimestamp"}
+    total: {type: integer, format: int64, minimum: 0}
+    page: {type: integer, minimum: 1}
+    pageSize: {type: integer, minimum: 1, maximum: 100}
+
+VerificationDetailResponse:
+  type: object
+  additionalProperties: false
+  required: [applicationId, schoolId, campusId, method, status, version, submittedAt, evidence]
+  properties:
+    applicationId: {$ref: "#/CampusId"}
+    schoolId: {$ref: "#/CampusId"}
+    campusId: {$ref: "#/CampusId"}
+    method: {type: string}
+    status: {type: string}
+    version: {type: integer, format: int64, minimum: 1}
+    submittedAt: {$ref: "#/CampusTimestamp"}
+    evidence:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [assetId]
+        properties:
+          assetId: {$ref: "#/CampusId"}
+
+VerificationQueueResponseEnvelope:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data: {$ref: "#/VerificationQueueResponse"}
+
+VerificationDetailResponseEnvelope:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data: {$ref: "#/VerificationDetailResponse"}
+
 CampusFieldError:
   type: object
   additionalProperties: false
@@ -186,6 +341,233 @@ VerificationMethod:
   type: string
   enum: [STUDENT_CARD]
   description: 当前可提交的认证方式。未列出的方法会在请求解析阶段被拒绝。
+
+MediaPurpose:
+  type: string
+  enum: [MEMBERSHIP_VERIFICATION]
+
+UploadTicketRequest:
+  type: object
+  additionalProperties: false
+  required: [purpose, fileName, size, mime]
+  properties:
+    purpose:
+      $ref: "#/MediaPurpose"
+    fileName:
+      type: string
+      minLength: 1
+      maxLength: 255
+      description: 仅作展示，不参与对象 key。
+    size:
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 10485760
+    mime:
+      type: string
+      enum: [image/jpeg, image/png, application/pdf]
+
+UploadTicket:
+  type: object
+  additionalProperties: false
+  required: [assetId, generation, uploadMethod, uploadUrl, expiresAt, requiredHeaders]
+  properties:
+    assetId:
+      $ref: "#/CampusId"
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    uploadMethod:
+      type: string
+      enum: [PROXY_PUT, SIGNED_PUT]
+    uploadUrl:
+      type: string
+      description: 单个 asset 的短时上传入口，不得持久化为业务 URL。
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+    requiredHeaders:
+      type: object
+      additionalProperties:
+        type: string
+      description: 可能含临时凭据；不得写日志、埋点或错误回传。
+
+UploadTicketResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/UploadTicket"
+
+UploadContent:
+  type: object
+  additionalProperties: false
+  required: [assetId, generation, bytesWritten, status]
+  properties:
+    assetId:
+      $ref: "#/CampusId"
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    bytesWritten:
+      type: integer
+      format: int64
+      minimum: 1
+    status:
+      type: string
+      enum: [UPLOADING]
+
+UploadContentResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/UploadContent"
+
+CompleteMediaRequest:
+  type: object
+  additionalProperties: false
+  required: [generation]
+  properties:
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+
+MediaCompletion:
+  type: object
+  additionalProperties: false
+  required: [assetId, generation, status, assetVersion]
+  properties:
+    assetId:
+      $ref: "#/CampusId"
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    status:
+      type: string
+      enum: [VALIDATING, VALID, REJECTED]
+    assetVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+MediaCompletionResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/MediaCompletion"
+
+BindMediaRequest:
+  type: object
+  additionalProperties: false
+  required: [generation, purpose, resourceType, resourceId, expectedVersion]
+  properties:
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    purpose:
+      $ref: "#/MediaPurpose"
+    resourceType:
+      type: string
+      minLength: 1
+      maxLength: 64
+      pattern: "^[A-Z][A-Z0-9_]*$"
+    resourceId:
+      type: string
+      minLength: 1
+      maxLength: 128
+    expectedVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+MediaBinding:
+  type: object
+  additionalProperties: false
+  required: [bindingId, assetId, assetGeneration, resourceType, resourceId, assetVersion]
+  properties:
+    bindingId:
+      $ref: "#/CampusId"
+    assetId:
+      $ref: "#/CampusId"
+    assetGeneration:
+      type: integer
+      format: int64
+      minimum: 1
+    resourceType:
+      type: string
+    resourceId:
+      type: string
+    assetVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+MediaBindingResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/MediaBinding"
+
+AdminMediaDownloadRequest:
+  type: object
+  additionalProperties: false
+  required: [caseReference, reason]
+  properties:
+    caseReference:
+      type: string
+      minLength: 1
+      maxLength: 128
+      description: 认证材料读取时必须等于该材料所属认证申请的 applicationId。
+    reason:
+      type: string
+      minLength: 1
+      maxLength: 500
+      description: 操作者本次查看材料的真实原因；客户端不得固定预填同一文案。
+
+MediaDownloadGrant:
+  type: object
+  additionalProperties: false
+  required: [deliveryToken, expiresAt, assetGeneration, assetVersion]
+  properties:
+    deliveryToken:
+      type: string
+      minLength: 32
+      maxLength: 128
+      description: 只用于受控代理读取；不是对象 key、永久 URL、云签名或临时密钥。
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+    assetGeneration:
+      type: integer
+      format: int64
+      minimum: 1
+    assetVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+MediaDownloadGrantResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/MediaDownloadGrant"
 
 SubmitVerificationRequest:
   type: object

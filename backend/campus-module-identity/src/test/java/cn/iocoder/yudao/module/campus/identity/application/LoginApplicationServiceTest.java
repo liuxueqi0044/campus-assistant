@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.yudao.module.campus.common.api.CampusApiException;
 import cn.iocoder.yudao.module.campus.common.api.CampusErrorCodes;
 import cn.iocoder.yudao.module.campus.identity.api.IdentityApi;
+import cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.MemberAccountAdapter;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.PlatformTenantExecutor;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.WechatIdentity;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class LoginApplicationServiceTest {
@@ -34,12 +36,13 @@ class LoginApplicationServiceTest {
     @Mock private WechatIdentityAdapter identityAdapter;
     @Mock private WechatIdentityBindingService bindingService;
     @Mock private MemberAccountAdapter memberAccountAdapter;
+    @Mock private AccountStatusPort accountStatusPort;
 
     private LoginApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new LoginApplicationService(identityAdapter, bindingService, memberAccountAdapter,
+        service = new LoginApplicationService(identityAdapter, bindingService, memberAccountAdapter, accountStatusPort,
                 new PlatformTenantExecutor(1L));
     }
 
@@ -66,6 +69,7 @@ class LoginApplicationServiceTest {
         assertThat(result.profileCompletion()).isTrue();
         verify(identityAdapter).exchangeCode("single-use-code");
         verify(bindingService).resolveOrCreateMember(identity);
+        verify(accountStatusPort).assertActive(7L);
         verify(memberAccountAdapter).issueMemberToken(member);
     }
 
@@ -108,6 +112,22 @@ class LoginApplicationServiceTest {
 
         assertThat(org.assertj.core.api.ThrowableAssert.catchThrowable(
                 () -> service.loginWithWechatCode("valid-code"))).isSameAs(disabled);
+
+        verify(memberAccountAdapter, never()).issueMemberToken(any());
+    }
+
+    @Test
+    void lifecycleSuspensionBlocksNewTokenEvenWhenUpstreamMemberRemainsEnabled() {
+        WechatIdentity identity = new WechatIdentity("server-app", "suspended-openid", null);
+        MemberUserDO member = member(5L);
+        CampusApiException suspended = new CampusApiException(CampusErrorCodes.ACCOUNT_DISABLED);
+        when(identityAdapter.exchangeCode("valid-code")).thenReturn(identity);
+        when(bindingService.resolveOrCreateMember(identity)).thenReturn(5L);
+        when(memberAccountAdapter.getRequiredActiveMember(5L)).thenReturn(member);
+        doThrow(suspended).when(accountStatusPort).assertActive(5L);
+
+        assertThat(org.assertj.core.api.ThrowableAssert.catchThrowable(
+                () -> service.loginWithWechatCode("valid-code"))).isSameAs(suspended);
 
         verify(memberAccountAdapter, never()).issueMemberToken(any());
     }

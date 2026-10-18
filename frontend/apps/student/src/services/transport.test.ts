@@ -162,4 +162,64 @@ describe('uni.request transport contract', () => {
     const { request, ApiError } = await import('./transport')
     await expect(request('GET', '/activities')).rejects.toBeInstanceOf(ApiError)
   })
+
+  it('uploads proxy bytes to the API origin with the bearer and ticket headers', async () => {
+    send.mockImplementation((options) =>
+      options.success({
+        statusCode: 200,
+        data: {
+          code: 0,
+          data: { assetId: '101', generation: 1, bytesWritten: 3, status: 'UPLOADING' },
+        },
+      }),
+    )
+    const { setToken, uploadCampusBytes } = await import('./transport')
+    setToken('test-token-not-a-real-credential')
+    const bytes = new Uint8Array([1, 2, 3]).buffer
+    await expect(
+      uploadCampusBytes('/app-api/campus/v1/media/assets/101/content', bytes, {
+        'Content-Type': 'image/jpeg',
+        'X-Upload-Token': 'temporary-upload-token',
+      }),
+    ).resolves.toMatchObject({ assetId: '101', status: 'UPLOADING' })
+    expect(send.mock.calls[0][0]).toMatchObject({
+      url: 'https://campus.example.test/app-api/campus/v1/media/assets/101/content',
+      method: 'PUT',
+      data: bytes,
+      timeout: 30000,
+      header: {
+        'Content-Type': 'image/jpeg',
+        'X-Upload-Token': 'temporary-upload-token',
+        Authorization: 'Bearer test-token-not-a-real-credential',
+      },
+    })
+  })
+
+  it('refuses to send the app bearer to a cross-origin proxy upload URL', async () => {
+    const { setToken, uploadCampusBytes } = await import('./transport')
+    setToken('test-token-not-a-real-credential')
+    await expect(
+      uploadCampusBytes(
+        'https://attacker.invalid/app-api/campus/v1/media/assets/101/content',
+        new ArrayBuffer(1),
+        { 'X-Upload-Token': 'temporary-upload-token' },
+      ),
+    ).rejects.toMatchObject({ code: 'CONTRACT_INVALID' })
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('keeps the app bearer out of a signed direct upload', async () => {
+    send.mockImplementation((options) =>
+      options.success({ statusCode: 200, data: 'storage response without campus envelope' }),
+    )
+    const { setToken, uploadSignedBytes } = await import('./transport')
+    setToken('test-token-not-a-real-credential')
+    await uploadSignedBytes(
+      'https://storage.example.test/private/object?signature=temporary',
+      new ArrayBuffer(1),
+      { 'X-Signed-Header': 'temporary' },
+    )
+    expect(send.mock.calls[0][0].header).toEqual({ 'X-Signed-Header': 'temporary' })
+    expect(send.mock.calls[0][0].header).not.toHaveProperty('Authorization')
+  })
 })

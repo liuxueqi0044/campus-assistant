@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.campus.identity.application.MembershipService;
 import cn.iocoder.yudao.module.campus.identity.application.VerificationApplicationService;
 import cn.iocoder.yudao.module.campus.identity.application.verification.SubmitVerificationCommand;
 import cn.iocoder.yudao.module.campus.identity.controller.CampusHttpRequestValidator;
+import cn.iocoder.yudao.module.campus.identity.controller.CampusPlatformPrincipalGuard;
 import cn.iocoder.yudao.module.campus.identity.controller.app.vo.MembershipResponse;
 import cn.iocoder.yudao.module.campus.identity.controller.app.vo.SubmitVerificationRequest;
 import cn.iocoder.yudao.module.campus.identity.controller.app.vo.VerificationApplicationResponse;
@@ -34,13 +35,14 @@ public class MembershipVerificationController {
 
     private final MembershipService membershipService;
     private final VerificationApplicationService verificationApplicationService;
+    private final CampusPlatformPrincipalGuard principalGuard;
 
     @PostMapping("/verifications")
     @Operation(summary = "提交校园身份认证")
     public CampusResponse<VerificationApplicationResponse> submit(@RequestBody @Valid SubmitVerificationRequest request,
                                                                     @RequestHeader(value = CampusApiContract.HEADER_IDEMPOTENCY_KEY,
                                                                             required = false) String idempotencyKey) {
-        long userId = CampusHttpRequestValidator.requiredCurrentUserId();
+        long userId = principalGuard.requiredMemberId();
         SubmitVerificationCommand command = new SubmitVerificationCommand(
                 CampusHttpRequestValidator.positiveId(request.getSchoolId(), "schoolId"),
                 CampusHttpRequestValidator.positiveId(request.getCampusId(), "campusId"),
@@ -53,7 +55,7 @@ public class MembershipVerificationController {
     @GetMapping("/membership")
     @Operation(summary = "检查当前用户的校园成员资格")
     public CampusResponse<MembershipResponse> membership(@RequestParam String schoolId, @RequestParam String campusId) {
-        long resultUserId = CampusHttpRequestValidator.requiredCurrentUserId();
+        long resultUserId = principalGuard.requiredMemberId();
         return CampusResponse.success(MembershipResponse.from(membershipService.check(resultUserId,
                 CampusHttpRequestValidator.positiveId(schoolId, "schoolId"),
                 CampusHttpRequestValidator.positiveId(campusId, "campusId"), SELF_CHECK_ACTION)));

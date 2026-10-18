@@ -22,6 +22,7 @@
         <!-- 仅测试 scope 的校园公共夹具；生产 server 不得依赖。 -->
         <module>campus-test-support</module>
         <module>campus-module-identity</module>
+        <module>campus-module-media</module>
         <!--
             M00.01 已从上游裁剪掉的模块：bpm、report、mp、mall、crm、erp、iot、mes、wms、hrm、fms、pms、im、ai。
             这些模块既不参与构建，也不作为运行依赖；需要时按 docs/upstream-baseline 记录的版本单独评估引入，

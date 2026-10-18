@@ -1,0 +1,35 @@
+-- M02.01 owns upload tickets and immutable private object locations.
+-- Temporary credentials are never persisted; ticket_nonce is signed with a process/configuration secret.
+
+CREATE TABLE campus_media_asset (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_id BIGINT UNSIGNED NOT NULL,
+    purpose VARCHAR(48) NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    declared_mime VARCHAR(127) NOT NULL,
+    declared_size BIGINT UNSIGNED NOT NULL,
+    object_key VARCHAR(255) NOT NULL,
+    generation BIGINT UNSIGNED NOT NULL DEFAULT 1,
+    status VARCHAR(24) NOT NULL,
+    idempotency_key_hash CHAR(64) NOT NULL,
+    request_hash CHAR(64) NOT NULL,
+    ticket_nonce VARCHAR(64) NOT NULL,
+    ticket_expires_at DATETIME(3) NOT NULL,
+    version BIGINT UNSIGNED NOT NULL DEFAULT 1,
+    creator VARCHAR(64) NULL,
+    create_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updater VARCHAR(64) NULL,
+    update_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted BIT NOT NULL DEFAULT b'0',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_campus_media_asset_object (object_key),
+    UNIQUE KEY uk_campus_media_asset_ticket (owner_id, idempotency_key_hash),
+    KEY idx_campus_media_asset_owner (owner_id, status, create_time, id),
+    KEY idx_campus_media_asset_expiry (status, ticket_expires_at, id),
+    CONSTRAINT chk_campus_media_asset_owner CHECK (owner_id > 0),
+    CONSTRAINT chk_campus_media_asset_purpose CHECK (purpose IN ('MEMBERSHIP_VERIFICATION')),
+    CONSTRAINT chk_campus_media_asset_declared_size CHECK (declared_size > 0),
+    CONSTRAINT chk_campus_media_asset_generation CHECK (generation > 0),
+    CONSTRAINT chk_campus_media_asset_status CHECK (status IN ('UPLOADING')),
+    CONSTRAINT chk_campus_media_asset_version CHECK (version > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

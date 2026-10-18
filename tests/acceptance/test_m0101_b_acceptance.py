@@ -45,7 +45,8 @@ class M0101BAcceptanceGateTest(unittest.TestCase):
             self.assertEqual(payload["status"], "EXTERNAL_NOT_READY")
             self.assertIs(payload["mysqlConfigured"], False)
             self.assertIs(payload["valkeyConfigured"], False)
-            self.assertEqual(payload["requiredTests"], [GATE.PREPARATION, GATE.FULL_SERVER])
+            self.assertEqual(payload["requiredTests"],
+                             [GATE.PREPARATION, GATE.FULL_SERVER, GATE.TENANT_BOUNDARY])
             self.assertNotIn("requiredEnvironment", payload)
 
     def test_surefire_evidence_rejects_skips(self) -> None:

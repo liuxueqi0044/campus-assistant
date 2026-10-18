@@ -22,7 +22,7 @@ class MembershipVerificationConfigurationTest {
                                     .isEqualTo(MembershipVerificationFailure.ACCOUNT_DISABLED));
             assertThatThrownBy(() -> context.getBean(
                             cn.iocoder.yudao.module.campus.identity.application.port.ReviewAuthorizationPort.class)
-                    .assertAllowed(901, 1, "VERIFICATION_REVIEW"))
+                    .assertAllowed(901, 1, 11, "VERIFICATION_REVIEW"))
                     .isInstanceOfSatisfying(MembershipVerificationException.class,
                             error -> assertThat(error.failure())
                                     .isEqualTo(MembershipVerificationFailure.VERIFICATION_REVIEW_FORBIDDEN));

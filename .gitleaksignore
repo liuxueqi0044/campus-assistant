@@ -1,0 +1,20 @@
+# Exact findings from the imported public upstream baseline. Current-tree values were
+# replaced by 249845c; keeping fingerprints here preserves scanning for every new value,
+# line, commit and file rather than excluding broad test or upstream directories.
+388e933dde11a29fb040d34e2b246c57443b999f:scripts/ci/m0101_b_acceptance.py:generic-api-key:117
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/docs/M00.01-verify.md:generic-api-key:62
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-framework/yudao-spring-boot-starter-web/src/test/java/cn/iocoder/yudao/framework/encrypt/ApiEncryptTest.java:generic-api-key:74
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/sql/mysql/ruoyi-vue-pro.sql:alibaba-access-key-id:6452
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-infra/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileConfigController.http:generic-api-key:12
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-infra/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileConfigController.http:generic-api-key:13
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-infra/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileConfigController.http:generic-api-key:32
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-infra/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileConfigController.http:generic-api-key:33
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-member/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.http:generic-api-key:60
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/main/java/cn/iocoder/yudao/module/system/controller/admin/oauth2/OAuth2OpenController.http:generic-api-key:52
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/main/java/cn/iocoder/yudao/module/system/controller/admin/oauth2/OAuth2OpenController.http:generic-api-key:55
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/main/java/cn/iocoder/yudao/module/system/controller/admin/oauth2/OAuth2OpenController.http:generic-api-key:60
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/test/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientTests.java:generic-api-key:108
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/test/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientTests.java:generic-api-key:128
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-module-system/src/test/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientTests.java:generic-api-key:144
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-server/src/main/resources/application.yaml:generic-api-key:303
+bcf6f574fe3075e540fad4a6c98b8db1c3259660:backend/yudao-server/src/main/resources/application.yaml:generic-api-key:304

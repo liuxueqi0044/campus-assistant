@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,6 +30,14 @@ public class MembershipVerificationRepository {
 
     public VerificationDO findVerification(long verificationId) {
         return verificationMapper.selectApplication(verificationId);
+    }
+
+    public List<VerificationDO> findVerificationsByStatus(String status) {
+        return verificationMapper.selectByStatus(status);
+    }
+
+    public VerificationDO findVerificationByProofReference(String proofReference) {
+        return verificationMapper.selectByProofReference(proofReference);
     }
 
     public MembershipDO lockMembership(long userId, long schoolId) {

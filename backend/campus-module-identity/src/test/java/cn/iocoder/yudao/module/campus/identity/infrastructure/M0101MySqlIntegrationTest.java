@@ -199,8 +199,14 @@ class M0101MySqlIntegrationTest {
             return new WechatIdentityBindingService(repository, memberAccountAdapter);
         }
         @Bean LoginApplicationService loginApplicationService(WechatIdentityAdapter adapter, WechatIdentityBindingService bindingService,
-                                                               MemberAccountAdapter memberAccountAdapter, PlatformTenantExecutor executor) {
-            return new LoginApplicationService(adapter, bindingService, memberAccountAdapter, executor);
+                                                               MemberAccountAdapter memberAccountAdapter,
+                                                               cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort accountStatusPort,
+                                                               PlatformTenantExecutor executor) {
+            return new LoginApplicationService(adapter, bindingService, memberAccountAdapter,
+                    accountStatusPort, executor);
+        }
+        @Bean cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort accountStatusPort() {
+            return userId -> { };
         }
     }
 

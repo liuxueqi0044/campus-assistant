@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.campus.identity.application;
 
 import cn.iocoder.yudao.framework.common.biz.system.oauth2.dto.OAuth2AccessTokenRespDTO;
 import cn.iocoder.yudao.module.campus.identity.api.IdentityApi;
+import cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.MemberAccountAdapter;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.PlatformTenantExecutor;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.WechatIdentity;
@@ -22,6 +23,7 @@ public class LoginApplicationService implements IdentityApi {
     private final WechatIdentityAdapter wechatIdentityAdapter;
     private final WechatIdentityBindingService bindingService;
     private final MemberAccountAdapter memberAccountAdapter;
+    private final AccountStatusPort accountStatusPort;
     private final PlatformTenantExecutor platformTenantExecutor;
 
     @Override
@@ -47,6 +49,7 @@ public class LoginApplicationService implements IdentityApi {
             memberId = bindingService.resolveConcurrentWinner(identity, duplicate);
         }
         MemberUserDO member = memberAccountAdapter.getRequiredActiveMember(memberId);
+        accountStatusPort.assertActive(memberId);
         OAuth2AccessTokenRespDTO token = memberAccountAdapter.issueMemberToken(member);
         return new IdentityLoginResult(member.getId(), token.getAccessToken(),
                 token.getExpiresTime().atZone(ZoneId.of("Asia/Shanghai")).toOffsetDateTime(),

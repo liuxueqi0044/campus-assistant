@@ -8,12 +8,23 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface VerificationMapper extends BaseMapperX<VerificationDO> {
 
+    @Select("""
+            SELECT * FROM campus_verification
+            WHERE status = #{status} AND deleted = b'0'
+            ORDER BY submitted_at ASC, id ASC
+            """)
+    List<VerificationDO> selectByStatus(@Param("status") String status);
+
     @Select("SELECT * FROM campus_verification WHERE id = #{id} AND deleted = b'0'")
     VerificationDO selectApplication(@Param("id") long id);
+
+    @Select("SELECT * FROM campus_verification WHERE proof_reference = #{proofReference} AND deleted = b'0'")
+    VerificationDO selectByProofReference(@Param("proofReference") String proofReference);
 
     @Select("SELECT * FROM campus_verification WHERE id = #{id} AND deleted = b'0' FOR UPDATE")
     VerificationDO selectByIdForUpdate(@Param("id") long id);

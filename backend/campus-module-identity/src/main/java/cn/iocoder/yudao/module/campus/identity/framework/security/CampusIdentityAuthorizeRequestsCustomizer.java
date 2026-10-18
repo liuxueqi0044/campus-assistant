@@ -22,7 +22,11 @@ public final class CampusIdentityAuthorizeRequestsCustomizer extends AuthorizeRe
                 .requestMatchers(HttpMethod.PUT, buildAppApi("/campus/v1/context")).permitAll()
                 // M01.01 is intentionally a single, method-specific anonymous route.
                 .requestMatchers(HttpMethod.POST, buildAppApi("/campus/v1/auth/wechat/login")).permitAll()
-                .requestMatchers(HttpMethod.POST, buildAppApi("/campus/v1/auth/logout")).permitAll();
+                .requestMatchers(HttpMethod.POST, buildAppApi("/campus/v1/auth/logout")).permitAll()
+                // The campus session wrapper performs its own fixed-platform tenant/audience checks after
+                // the upstream tenant filter is bypassed. Keep anonymous access exact to login/refresh only.
+                .requestMatchers(HttpMethod.POST, buildAdminApi("/campus/v1/session/login")).permitAll()
+                .requestMatchers(HttpMethod.POST, buildAdminApi("/campus/v1/session/refresh")).permitAll();
     }
 
 }

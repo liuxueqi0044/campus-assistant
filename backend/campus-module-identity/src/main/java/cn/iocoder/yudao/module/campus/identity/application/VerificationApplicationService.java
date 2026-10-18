@@ -141,9 +141,8 @@ public class VerificationApplicationService {
         String reason = requireText(rawReason, "reason", 500);
         String key = requireText(idempotencyKey, "idempotencyKey", IdempotentCommand.KEY_MAX_LENGTH);
         VerificationDO probe = requiredVerification(repository.findVerification(verificationId));
-        String authorizationAction = action == VerificationAction.REVOKE
-                ? "MEMBERSHIP_REVOKE" : "VERIFICATION_REVIEW";
-        authorizationPort.assertAllowed(operatorId, probe.getSchoolId(), authorizationAction);
+        String authorizationAction = authorizationAction(action);
+        authorizationPort.assertAllowed(operatorId, probe.getSchoolId(), probe.getCampusId(), authorizationAction);
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("verificationId", verificationId);
         request.put("action", action.name());
@@ -153,7 +152,8 @@ public class VerificationApplicationService {
                 action == VerificationAction.REVOKE ? REVOKE_ACTION : REVIEW_ACTION, key, request, null);
         return idempotency.execute(durable, VerificationReviewResult.class,
                 () -> executeStatusChange(operatorId, verificationId, action, reason, expectedVersion),
-                ignored -> authorizationPort.assertAllowed(operatorId, probe.getSchoolId(), authorizationAction))
+                ignored -> authorizationPort.assertAllowed(operatorId, probe.getSchoolId(), probe.getCampusId(),
+                        authorizationAction))
                 .result();
     }
 
@@ -161,6 +161,8 @@ public class VerificationApplicationService {
                                                                             VerificationAction action, String reason,
                                                                             long expectedVersion) {
         VerificationDO row = requiredVerification(repository.lockVerification(verificationId));
+        authorizationPort.assertAllowed(operatorId, row.getSchoolId(), row.getCampusId(),
+                authorizationAction(action));
         MembershipDO membership = repository.lockMembership(row.getUserId(), row.getSchoolId());
         VerificationStatus target = target(action);
         if (row.getStatus().equals(target.name()) && row.getVersion() == expectedVersion + 1) {
@@ -351,6 +353,7 @@ public class VerificationApplicationService {
         String key = requireText(command.idempotencyKey(), "idempotencyKey", IdempotentCommand.KEY_MAX_LENGTH);
         List<String> refs = Objects.requireNonNull(command.evidenceRefs(), "evidenceRefs").stream()
                 .map(ref -> requireOpaqueReference(ref, "evidenceRef"))
+                .sorted()
                 .toList();
         if (refs.isEmpty() || refs.size() > 10 || refs.stream().distinct().count() != refs.size()) {
             throw new IllegalArgumentException("evidenceRefs must contain 1..10 unique opaque identifiers");
@@ -404,6 +407,10 @@ public class VerificationApplicationService {
             case REJECT -> VerificationStatus.REJECTED;
             case REVOKE -> VerificationStatus.REVOKED;
         };
+    }
+
+    private static String authorizationAction(VerificationAction action) {
+        return action == VerificationAction.REVOKE ? "MEMBERSHIP_REVOKE" : "VERIFICATION_REVIEW";
     }
 
     private static String requireOpaqueReference(String value, String name) {

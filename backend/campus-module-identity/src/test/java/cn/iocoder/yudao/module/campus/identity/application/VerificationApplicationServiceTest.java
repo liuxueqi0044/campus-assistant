@@ -46,6 +46,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class VerificationApplicationServiceTest {
@@ -105,6 +107,8 @@ class VerificationApplicationServiceTest {
             assertThat(event.getPayload()).containsOnlyKeys(
                     "userId", "schoolId", "campusId", "membershipId", "status", "scopeVersion");
         });
+        verify(authorizationPort, times(2))
+                .assertAllowed(901, 1, 11, "VERIFICATION_REVIEW");
     }
 
     @Test
@@ -216,6 +220,21 @@ class VerificationApplicationServiceTest {
         assertThat(second).isEqualTo(first);
         assertThat(state.reviews).hasSize(1);
         assertThat(state.events).hasSize(1);
+    }
+
+    @Test
+    void sameSubmitKeyReplaysOriginalApplicationWithoutReclaimingEvidence() {
+        SubmitVerificationCommand firstOrder = new SubmitVerificationCommand(
+                1, 11, "STUDENT_CARD", List.of("102", "101"), "submit-replay");
+        SubmitVerificationCommand reverseOrder = new SubmitVerificationCommand(
+                1, 11, "STUDENT_CARD", List.of("101", "102"), "submit-replay");
+
+        var first = service.submit(101, firstOrder);
+        var second = service.submit(101, reverseOrder);
+
+        assertThat(second).isEqualTo(first);
+        verify(evidencePort, times(1)).verify(101, 1, 11, "STUDENT_CARD", List.of("101", "102"));
+        verify(repository, times(1)).insertVerification(any());
     }
 
     @Test

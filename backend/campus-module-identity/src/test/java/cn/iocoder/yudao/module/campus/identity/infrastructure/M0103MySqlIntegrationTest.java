@@ -34,12 +34,14 @@ class M0103MySqlIntegrationTest {
     private static final String PASSWORD = System.getenv("CAMPUS_M0103_MYSQL_PASSWORD");
 
     private JdbcTemplate jdbc;
+    private long proofSequence;
 
     @BeforeEach
     void setUp() {
         fixtureFlyway().clean();
         fixtureFlyway().migrate();
         jdbc = jdbc();
+        proofSequence = 0;
         assertThat(jdbc.queryForObject("""
                 SELECT COUNT(*) FROM information_schema.tables
                 WHERE table_schema = DATABASE()
@@ -85,13 +87,15 @@ class M0103MySqlIntegrationTest {
     }
 
     @Test
-    void onlyOnePendingAttemptIsAllowedPerUserAndSchoolButResubmissionAfterDecisionIsAllowed() {
-        long first = insertPendingVerification(101, 1, 11);
+    void rejectedAttemptRequiresANewProofBeforeResubmission() {
+        long first = insertPendingVerification(101, 1, 11, "proof-first");
         assertThatThrownBy(() -> insertPendingVerification(101, 1, 12))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
         rejectVerification(first);
-        long second = insertPendingVerification(101, 1, 12);
+        assertThatThrownBy(() -> insertPendingVerification(101, 1, 12, "proof-first"))
+                .isInstanceOf(DataIntegrityViolationException.class);
+        long second = insertPendingVerification(101, 1, 12, "proof-second");
 
         assertThat(second).isPositive().isNotEqualTo(first);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM campus_verification WHERE user_id=101 AND school_id=1",
@@ -143,18 +147,24 @@ class M0103MySqlIntegrationTest {
     }
 
     private long insertPendingVerification(long userId, long schoolId, long campusId) {
+        return insertPendingVerification(userId, schoolId, campusId,
+                "proof-fixture-" + userId + "-" + (++proofSequence));
+    }
+
+    private long insertPendingVerification(long userId, long schoolId, long campusId, String proofReference) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             var statement = connection.prepareStatement("""
                     INSERT INTO campus_verification
                         (user_id, school_id, campus_id, method, evidence_refs_json, proof_reference,
                          status, version, submitted_at)
-                    VALUES (?, ?, ?, 'STUDENT_CARD', JSON_ARRAY('asset-fixture'), 'proof-fixture',
+                    VALUES (?, ?, ?, 'STUDENT_CARD', JSON_ARRAY('asset-fixture'), ?,
                             'PENDING', 1, '2026-09-17 09:00:00.000')
                     """, Statement.RETURN_GENERATED_KEYS);
             statement.setLong(1, userId);
             statement.setLong(2, schoolId);
             statement.setLong(3, campusId);
+            statement.setString(4, proofReference);
             return statement;
         }, keyHolder);
         Number generatedId = keyHolder.getKey();

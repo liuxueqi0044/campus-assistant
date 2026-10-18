@@ -1,0 +1,33 @@
+{
+  "name": "campus-assistant-admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.18.0",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit",
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "2.3.2",
+    "axios": "1.16.0",
+    "element-plus": "2.13.7",
+    "pinia": "3.0.4",
+    "vue": "3.5.34",
+    "vue-router": "5.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.0",
+    "@vitejs/plugin-vue": "6.0.6",
+    "typescript": "6.0.3",
+    "vite": "8.1.4",
+    "vitest": "5.0.1",
+    "vue-tsc": "3.2.8"
+  },
+  "engines": {
+    "node": ">=20.19.0",
+    "pnpm": ">=8.6.0"
+  }
+}

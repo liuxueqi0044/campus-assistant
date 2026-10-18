@@ -2,6 +2,7 @@ package cn.iocoder.yudao.server.integration;
 
 import cn.iocoder.yudao.framework.common.biz.system.oauth2.OAuth2TokenCommonApi;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.module.campus.common.api.CampusApiException;
 import cn.iocoder.yudao.module.campus.common.api.CampusErrorCodes;
 import cn.iocoder.yudao.module.campus.identity.infrastructure.WechatIdentity;
@@ -106,6 +107,47 @@ class M0101MemberOAuth2IntegrationIT {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM member_user WHERE id = ?", Integer.class, first.memberId())).isEqualTo(1);
         assertThat(jdbc.queryForMap("SELECT name, nickname FROM member_user WHERE id = ?", first.memberId()))
                 .containsEntry("name", "Preserved Name").containsEntry("nickname", "Preserved Nickname");
+    }
+
+    @Test
+    void disabledMemberCannotLoginAgainOrCreateAnotherToken() throws Exception {
+        String openId = openId();
+        when(wechatIdentityAdapter.exchangeCode("first-disabled-" + openId))
+                .thenReturn(new WechatIdentity(APP_ID, openId, null));
+        Login first = login("first-disabled-" + openId);
+        int bindingsBefore = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM campus_wechat_identity_binding
+                 WHERE app_id = ? AND open_id = ? AND member_id = ?
+                """, Integer.class, APP_ID, openId, first.memberId());
+        int tokensBefore = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM system_oauth2_access_token
+                 WHERE user_id = ? AND user_type = ?
+                """, Integer.class, first.memberId(), UserTypeEnum.MEMBER.getValue());
+        jdbc.update("UPDATE member_user SET status = ? WHERE id = ?", CommonStatusEnum.DISABLE.getStatus(),
+                first.memberId());
+        try {
+            when(wechatIdentityAdapter.exchangeCode("again-disabled-" + openId))
+                    .thenReturn(new WechatIdentity(APP_ID, openId, null));
+            var response = http.postForEntity("http://localhost:" + port + "/app-api/campus/v1/auth/wechat/login",
+                    java.util.Map.of("code", "again-disabled-" + openId), String.class);
+
+            assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+            JsonNode payload = objectMapper.readTree(response.getBody());
+            assertThat(payload.path("code").asInt()).isEqualTo(CampusErrorCodes.ACCOUNT_DISABLED.getCode());
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM member_user WHERE id = ?", Integer.class,
+                    first.memberId())).isEqualTo(1);
+            assertThat(jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM campus_wechat_identity_binding
+                     WHERE app_id = ? AND open_id = ? AND member_id = ?
+                    """, Integer.class, APP_ID, openId, first.memberId())).isEqualTo(bindingsBefore);
+            assertThat(jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM system_oauth2_access_token
+                     WHERE user_id = ? AND user_type = ?
+                    """, Integer.class, first.memberId(), UserTypeEnum.MEMBER.getValue())).isEqualTo(tokensBefore);
+        } finally {
+            jdbc.update("UPDATE member_user SET status = ? WHERE id = ?", CommonStatusEnum.ENABLE.getStatus(),
+                    first.memberId());
+        }
     }
 
     @Test

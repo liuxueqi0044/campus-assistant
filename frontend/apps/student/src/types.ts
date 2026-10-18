@@ -116,6 +116,13 @@ export interface Notice {
   read: boolean
   type: 'activity' | 'errand' | 'system'
 }
+export type VerificationStatus =
+  | 'NONE'
+  | 'PENDING'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'EXPIRED'
+  | 'REVOKED'
 export interface User {
   id: string
   name: string
@@ -123,8 +130,84 @@ export interface User {
   school: string
   campusId: string
   loggedIn: boolean
-  verification: 'NONE' | 'PENDING' | 'VERIFIED'
+  verification: VerificationStatus
   runner: boolean
+}
+
+export type VerificationFlowPhase =
+  | 'IDLE'
+  | 'UNAVAILABLE'
+  | 'SELECTED'
+  | 'UPLOADING'
+  | 'VERIFYING'
+  | 'READY'
+  | 'SUBMITTING'
+  | 'PENDING'
+  | 'FAILED'
+  | 'RESULT_UNKNOWN'
+
+export type VerificationMaterialStatus = 'SELECTED' | 'UPLOADING' | 'VERIFYING' | 'READY' | 'FAILED'
+export type VerificationMime = 'image/jpeg' | 'image/png' | 'application/pdf'
+
+export interface VerificationMaterial {
+  localId: string
+  name: string
+  size: number
+  mime: VerificationMime
+  ticketKey: string
+  status: VerificationMaterialStatus
+  assetId?: string
+  generation?: number
+  errorCode?: string
+  errorMessage?: string
+}
+
+export interface VerificationUploadFile {
+  localId: string
+  name: string
+  size: number
+  mime: VerificationMime
+  ticketKey: string
+}
+
+export interface MediaUploadReceipt {
+  assetId: string
+  generation: number
+  bytesWritten: number
+  status: 'VALID'
+  assetVersion: number
+}
+
+export interface VerificationFlowState {
+  mediaAvailable: boolean
+  phase: VerificationFlowPhase
+  materials: VerificationMaterial[]
+  applicationId: string
+  applicationVersion: number | null
+  applicationStatus: 'PENDING' | ''
+  failureStage: 'UPLOAD' | 'VERIFY' | 'SUBMIT' | ''
+  errorCode: string
+  errorMessage: string
+  traceId: string
+}
+
+export interface SubmitVerificationInput {
+  schoolId: string
+  campusId: string
+  method: 'STUDENT_CARD'
+  evidenceRefs: string[]
+}
+
+export interface VerificationApplicationDTO {
+  applicationId: string
+  status: 'PENDING'
+  version: number
+}
+
+export interface MembershipDTO {
+  effective: true
+  expiresAt: string
+  scopeVersion: number
 }
 
 /** Wire DTOs used by the real campus context adapter. Pages continue to use Campus/User. */

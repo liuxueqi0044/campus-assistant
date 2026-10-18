@@ -22,7 +22,15 @@ const activities = computed(
   () => state.activities.filter((a) => a.participantStatus !== 'NONE').length,
 )
 const verificationText = computed(
-  () => ({ NONE: '未认证', PENDING: '审核中', VERIFIED: '已认证' })[state.user.verification],
+  () =>
+    ({
+      NONE: '未认证',
+      PENDING: '审核中',
+      VERIFIED: '已认证',
+      REJECTED: '未通过',
+      EXPIRED: '已过期',
+      REVOKED: '已撤销',
+    })[state.user.verification],
 )
 function openRecords(type: string) {
   go(state.user.loggedIn ? `/pages-account/records?type=${type}` : '/pages-account/login')
@@ -101,7 +109,12 @@ function openRecords(type: string) {
                 ? '学生身份，让交流更放心'
                 : state.user.verification === 'PENDING' && state.user.loggedIn
                   ? '认证资料已提交'
-                  : '完善你的学生身份'
+                  : state.user.verification === 'REJECTED' && state.user.loggedIn
+                    ? '认证材料需要更新'
+                    : ['EXPIRED', 'REVOKED'].includes(state.user.verification) &&
+                        state.user.loggedIn
+                      ? '学生身份需要重新确认'
+                      : '完善你的学生身份'
             }}
           </text>
           <text class="identity-description">

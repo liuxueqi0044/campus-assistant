@@ -70,6 +70,16 @@ TooManyRequests:
       schema:
         $ref: "./schemas.yaml#/CampusErrorResponse"
 
+ServiceUnavailable:
+  description: 外部或私有存储暂不可用（503）；不得降级为成功或公开目录。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
 NotImplemented:
   description: 事件类型或版本未被当前消费者支持（501），需运营处理，不允许按旧结构猜测执行。
   headers:

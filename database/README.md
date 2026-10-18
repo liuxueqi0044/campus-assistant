@@ -9,7 +9,9 @@
 `V0001__M00_03_migration_policy_baseline.sql` 只建立 checksum 保护的自有迁移历史，不创建业务表。
 后续迁移按模块归属单调追加：`V0002` 为 M01.02 学校/校区浏览上下文，`V0003` 为 M00.04
 持久化幂等命令，`V0004` 为 M01.01 微信身份映射，`V0005` 为 M00.05 transactional outbox
-及消费去重记录，`V0006` 为 M01.03 成员资格、认证申请和审核记录。M00.03 的事务示例 DDL 仅在
+及消费去重记录，`V0006` 为 M01.03 成员资格、认证申请和审核记录。`V0007`、`V0008` 由
+M01.04/M01.06 保留，`V0009` 为 M02.01 私有媒体资产与上传票据；后续编号按
+`docs/coordination/2026-09-17-continuous-delivery-cycle-1.md` 分配。M00.03 的事务示例 DDL 仅在
 `backend/campus-common/src/test/resources/m003-fixtures/` 供自动化验收使用，绝不随生产 JAR 发布。
 
 ## 空 schema 与完整应用新库

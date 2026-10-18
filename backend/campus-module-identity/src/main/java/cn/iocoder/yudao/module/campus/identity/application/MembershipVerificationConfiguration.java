@@ -30,7 +30,7 @@ public class MembershipVerificationConfiguration {
     @Bean
     @ConditionalOnMissingBean(ReviewAuthorizationPort.class)
     public ReviewAuthorizationPort unavailableReviewAuthorizationPort() {
-        return (operatorId, schoolId, action) -> {
+        return (operatorId, schoolId, campusId, action) -> {
             throw new MembershipVerificationException(
                     MembershipVerificationFailure.VERIFICATION_REVIEW_FORBIDDEN);
         };
