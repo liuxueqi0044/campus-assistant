@@ -1,0 +1,1500 @@
+{
+  "schema_version": "1.0",
+  "architecture_version": "1.1",
+  "date": "2026-09-17",
+  "kind": "architecture_task_index",
+  "product_test_status": "not_run",
+  "total": 76,
+  "modules": [
+    {
+      "id": "M00.01",
+      "parent": "M00",
+      "title": "开源底座与依赖锁定",
+      "design_file": "M00-工程底座.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M00.02",
+      "parent": "M00",
+      "title": "API 契约与错误规范",
+      "design_file": "M00-工程底座.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M00.03",
+      "parent": "M00",
+      "title": "数据库迁移与事务约定",
+      "design_file": "M00-工程底座.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.01",
+        "M00.02",
+        "M00.03",
+        "M00.04",
+        "M00.05"
+      ]
+    },
+    {
+      "id": "M00.04",
+      "parent": "M00",
+      "title": "幂等命令",
+      "design_file": "M00-工程底座.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.02"
+      ]
+    },
+    {
+      "id": "M00.05",
+      "parent": "M00",
+      "title": "outbox 调度与恢复",
+      "design_file": "M00-工程底座.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.03",
+        "M00.04"
+      ]
+    },
+    {
+      "id": "M00.06",
+      "parent": "M00",
+      "title": "测试夹具与持续集成",
+      "design_file": "M00-工程底座.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.01",
+        "M00.04"
+      ]
+    },
+    {
+      "id": "M01.01",
+      "parent": "M01",
+      "title": "微信登录与身份绑定",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.06"
+      ]
+    },
+    {
+      "id": "M01.02",
+      "parent": "M01",
+      "title": "学校校区与浏览上下文",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.01"
+      ]
+    },
+    {
+      "id": "M01.03",
+      "parent": "M01",
+      "title": "成员认证生命周期",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.02"
+      ]
+    },
+    {
+      "id": "M01.04",
+      "parent": "M01",
+      "title": "后台学校范围授权",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.02"
+      ]
+    },
+    {
+      "id": "M01.05",
+      "parent": "M01",
+      "title": "跑腿资格与停用",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.03"
+      ]
+    },
+    {
+      "id": "M01.06",
+      "parent": "M01",
+      "title": "资源授权与账户生命周期",
+      "design_file": "M01-身份与校园.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.04"
+      ]
+    },
+    {
+      "id": "M02.01",
+      "parent": "M02",
+      "title": "上传票据与存储适配",
+      "design_file": "M02-媒体与内容基础.md",
+      "design_line": 12,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M02.02",
+      "parent": "M02",
+      "title": "文件验证与绑定",
+      "design_file": "M02-媒体与内容基础.md",
+      "design_line": 28,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M02.03",
+      "parent": "M02",
+      "title": "私有下载与访问审计",
+      "design_file": "M02-媒体与内容基础.md",
+      "design_line": 44,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.06"
+      ]
+    },
+    {
+      "id": "M02.04",
+      "parent": "M02",
+      "title": "内容检查与审核结果",
+      "design_file": "M02-媒体与内容基础.md",
+      "design_line": 60,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M02.05",
+      "parent": "M02",
+      "title": "保留清理与证据保全",
+      "design_file": "M02-媒体与内容基础.md",
+      "design_line": 76,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.05"
+      ]
+    },
+    {
+      "id": "M03.01",
+      "parent": "M03",
+      "title": "学期与节次配置",
+      "design_file": "M03-课表.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M03.02",
+      "parent": "M03",
+      "title": "课程聚合与周视图计算",
+      "design_file": "M03-课表.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M03.03",
+      "parent": "M03",
+      "title": "日期例外与调课",
+      "design_file": "M03-课表.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M03.04",
+      "parent": "M03",
+      "title": "导入任务编排与进度",
+      "design_file": "M03-课表.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.05"
+      ]
+    },
+    {
+      "id": "M03.05",
+      "parent": "M03",
+      "title": "表格与结构化文件解析",
+      "design_file": "M03-课表.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M03.06",
+      "parent": "M03",
+      "title": "截图 OCR 与结构适配",
+      "design_file": "M03-课表.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M03.07",
+      "parent": "M03",
+      "title": "草稿核对、提交与撤销",
+      "design_file": "M03-课表.md",
+      "design_line": 109,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M04.01",
+      "parent": "M04",
+      "title": "出售求购与发布审核状态",
+      "design_file": "M04-二手.md",
+      "design_line": 11,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M04.02",
+      "parent": "M04",
+      "title": "校园商品检索与详情投影",
+      "design_file": "M04-二手.md",
+      "design_line": 27,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M04.03",
+      "parent": "M04",
+      "title": "预约占用与到期释放",
+      "design_file": "M04-二手.md",
+      "design_line": 43,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M00.04"
+      ]
+    },
+    {
+      "id": "M04.04",
+      "parent": "M04",
+      "title": "自提确认与关闭归因",
+      "design_file": "M04-二手.md",
+      "design_line": 59,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M04.05",
+      "parent": "M04",
+      "title": "交易上下文、举报与运营命令",
+      "design_file": "M04-二手.md",
+      "design_line": 75,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M05.01",
+      "parent": "M05",
+      "title": "计价与规则快照",
+      "design_file": "M05-跑腿.md",
+      "design_line": 22,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M05.02",
+      "parent": "M05",
+      "title": "订单创建与支付衔接",
+      "design_file": "M05-跑腿.md",
+      "design_line": 38,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M05.03",
+      "parent": "M05",
+      "title": "任务大厅与并发接单",
+      "design_file": "M05-跑腿.md",
+      "design_line": 54,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M01.05",
+        "M05.04"
+      ]
+    },
+    {
+      "id": "M05.04",
+      "parent": "M05",
+      "title": "履约证据与完成",
+      "design_file": "M05-跑腿.md",
+      "design_line": 70,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M05.05",
+      "parent": "M05",
+      "title": "取消争议与同步冻结",
+      "design_file": "M05-跑腿.md",
+      "design_line": 86,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M05.06",
+      "parent": "M05",
+      "title": "到期补偿与运营查询",
+      "design_file": "M05-跑腿.md",
+      "design_line": 102,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M06.01",
+      "parent": "M06",
+      "title": "活动发布与参加规则",
+      "design_file": "M06-活动.md",
+      "design_line": 11,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M06.02",
+      "parent": "M06",
+      "title": "报名资格与名额占用",
+      "design_file": "M06-活动.md",
+      "design_line": 27,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M06.03",
+      "parent": "M06",
+      "title": "候补队列与自动提升",
+      "design_file": "M06-活动.md",
+      "design_line": 43,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M06.02"
+      ]
+    },
+    {
+      "id": "M06.04",
+      "parent": "M06",
+      "title": "签到凭证与签到记录",
+      "design_file": "M06-活动.md",
+      "design_line": 59,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M06.05",
+      "parent": "M06",
+      "title": "活动取消、截止与批量善后",
+      "design_file": "M06-活动.md",
+      "design_line": 75,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M07.01",
+      "parent": "M07",
+      "title": "会话成员与上下文",
+      "design_file": "M07-消息.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M07.02",
+      "parent": "M07",
+      "title": "消息持久化与顺序",
+      "design_file": "M07-消息.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M07.03",
+      "parent": "M07",
+      "title": "WSS 连接认证与路由",
+      "design_file": "M07-消息.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M07.04",
+      "parent": "M07",
+      "title": "历史补拉与已读",
+      "design_file": "M07-消息.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M07.05",
+      "parent": "M07",
+      "title": "业务通知与订阅提醒",
+      "design_file": "M07-消息.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.01",
+      "parent": "M08",
+      "title": "渠道配置与收款人绑定",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 26,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.02",
+      "parent": "M08",
+      "title": "支付单与预支付",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 42,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.03",
+      "parent": "M08",
+      "title": "回调查单与可信结果",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 58,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.04",
+      "parent": "M08",
+      "title": "退款预占与退款执行",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 74,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.05",
+      "parent": "M08",
+      "title": "业务资金控制与结算分配",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 90,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.06",
+      "parent": "M08",
+      "title": "跑腿员打款与未知态恢复",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 106,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.07",
+      "parent": "M08",
+      "title": "追加台账与冲正",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 122,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M08.08",
+      "parent": "M08",
+      "title": "渠道对账与差异处理",
+      "design_file": "M08-支付与结算.md",
+      "design_line": 138,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M09.01",
+      "parent": "M09",
+      "title": "举报案件、分派与审计",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M02.05"
+      ]
+    },
+    {
+      "id": "M09.02",
+      "parent": "M09",
+      "title": "内容与认证审核决策",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M09.03",
+      "parent": "M09",
+      "title": "争议受理、冻结与处理协调",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M05.05",
+        "M08.04"
+      ]
+    },
+    {
+      "id": "M09.04",
+      "parent": "M09",
+      "title": "推广渠道与注册归因",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M09.05",
+      "parent": "M09",
+      "title": "学校配置、规则版本与功能开关",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M09.06",
+      "parent": "M09",
+      "title": "业务指标与收入读模型",
+      "design_file": "M09-治理与运营.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.01",
+      "parent": "M10",
+      "title": "主题与基础组件",
+      "design_file": "M10-学生端.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.02",
+      "parent": "M10",
+      "title": "导航学校上下文与分包",
+      "design_file": "M10-学生端.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.03",
+      "parent": "M10",
+      "title": "请求会话与错误恢复",
+      "design_file": "M10-学生端.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.04",
+      "parent": "M10",
+      "title": "账号认证与个人中心",
+      "design_file": "M10-学生端.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.05",
+      "parent": "M10",
+      "title": "二手页面闭环",
+      "design_file": "M10-学生端.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.06",
+      "parent": "M10",
+      "title": "跑腿页面闭环",
+      "design_file": "M10-学生端.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.07",
+      "parent": "M10",
+      "title": "活动页面闭环",
+      "design_file": "M10-学生端.md",
+      "design_line": 109,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M10.08",
+      "parent": "M10",
+      "title": "课表页面与导入纠错",
+      "design_file": "M10-学生端.md",
+      "design_line": 125,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": [
+        "M03.07"
+      ]
+    },
+    {
+      "id": "M10.09",
+      "parent": "M10",
+      "title": "消息收件箱与实时同步",
+      "design_file": "M10-学生端.md",
+      "design_line": 141,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.01",
+      "parent": "M11",
+      "title": "管理端壳与学校权限",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 13,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.02",
+      "parent": "M11",
+      "title": "认证内容与案件工作台",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 29,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.03",
+      "parent": "M11",
+      "title": "订单财务与对账工作台",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 45,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.04",
+      "parent": "M11",
+      "title": "渠道配置与统计页面",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 61,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.05",
+      "parent": "M11",
+      "title": "环境与可重复部署",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 77,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.06",
+      "parent": "M11",
+      "title": "监控日志与告警",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 93,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.07",
+      "parent": "M11",
+      "title": "备份恢复与补账演练",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 109,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    },
+    {
+      "id": "M11.08",
+      "parent": "M11",
+      "title": "发布灰度回退与真机验收",
+      "design_file": "M11-管理端与运维.md",
+      "design_line": 125,
+      "status": "designed_not_implemented",
+      "acceptance_status": "not_run",
+      "architecture_fields": [
+        "目标与边界",
+        "工程结构",
+        "数据与不变量",
+        "接口契约",
+        "执行与失败处理",
+        "依赖与替身",
+        "独立验收"
+      ],
+      "referenced_submodules": []
+    }
+  ]
+}

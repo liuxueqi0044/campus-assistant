@@ -1,0 +1,92 @@
+BadRequest:
+  description: |
+    参数错误（400）。覆盖请求参数缺失／类型错误、Bean Validation 失败、
+    金额使用小数或字符串、超过分页上限等；`data.fieldErrors` 给出字段级原因。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+      examples:
+        moneyFormatInvalid:
+          $ref: "../examples/campus-response-money-format.json"
+
+Unauthorized:
+  description: 未认证（401）。token 缺失、过期或无效。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
+Forbidden:
+  description: 已认证但没有该操作权限（403）。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
+NotFound:
+  description: |
+    资源不存在或调用方不可见（404）。两种情况使用同一响应，避免通过状态码探测私有资源是否存在。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
+Conflict:
+  description: |
+    冲突（409）：版本冲突返回当前版本与状态；幂等同键异体返回内容不一致；
+    命令仍在处理中时要求稍后查询而非重新执行；有界数据库锁重试耗尽返回
+    `CAMPUS_RETRYABLE_CONFLICT`，调用方先查询结果再决定是否重试。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+      examples:
+        versionConflict:
+          $ref: "../examples/campus-response-version-conflict.json"
+
+TooManyRequests:
+  description: 限流（429）。`data.requiredAction` 为 `RETRY`，调用方应退避后重试。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
+NotImplemented:
+  description: 事件类型或版本未被当前消费者支持（501），需运营处理，不允许按旧结构猜测执行。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"
+
+InternalError:
+  description: |
+    未捕获异常（500）。对外只给通用提示与 traceId，不放异常类名、堆栈、SQL 或连接串。
+  headers:
+    X-Trace-Id:
+      $ref: "./headers.yaml#/X-Trace-Id"
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yaml#/CampusErrorResponse"

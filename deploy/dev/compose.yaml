@@ -1,0 +1,50 @@
+name: campus-assistant-dev
+
+services:
+  mysql:
+    image: mysql:8.4.11@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: campus_assistant
+      MYSQL_USER: campus
+      MYSQL_PASSWORD: ${CAMPUS_DB_PASSWORD:?set CAMPUS_DB_PASSWORD in deploy/dev/.env}
+      MYSQL_ROOT_PASSWORD: ${CAMPUS_DB_ROOT_PASSWORD:?set CAMPUS_DB_ROOT_PASSWORD in deploy/dev/.env}
+      TZ: UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine@sha256:d2e18f3410b6f616de1417f570fa55261af2898b9c5b2cfb6781ce2373ea43d1
+    restart: unless-stopped
+    environment:
+      CAMPUS_CACHE_PASSWORD: ${CAMPUS_CACHE_PASSWORD:?set CAMPUS_CACHE_PASSWORD in deploy/dev/.env}
+      TZ: UTC
+    command:
+      - /bin/sh
+      - -ec
+      - exec valkey-server --appendonly yes --requirepass "$$CAMPUS_CACHE_PASSWORD"
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a \"$$CAMPUS_CACHE_PASSWORD\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  mysql-data:
+  valkey-data:

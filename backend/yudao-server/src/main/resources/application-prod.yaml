@@ -1,0 +1,95 @@
+# 校园助手生产 profile（M00.01 开源底座与依赖锁定）
+#
+# 约束：
+# 1. 本文件不给数据库、缓存、支付凭据任何默认值；缺少 CAMPUS_* 环境变量时，
+#    CampusStartupConfigurationGuard 会以 CONFIGURATION_INVALID 拒绝启动，且日志只出现变量名。
+# 2. 激活方式：SPRING_PROFILES_ACTIVE=prod（环境变量优先级高于 application.yaml 中的 local 默认值）。
+# 3. 生产禁止模拟支付网关与模拟登录；该约束由启动守卫强制，而不是靠文档约定。
+
+server:
+  port: ${CAMPUS_SERVER_PORT:48080}
+
+--- #################### 数据库与缓存 ####################
+
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: ${CAMPUS_DB_URL}
+          username: ${CAMPUS_DB_USERNAME}
+          password: ${CAMPUS_DB_PASSWORD}
+        slave: # 当前架构为单库；保留从库配置位并指向同一实例，避免后续接入时改结构
+          lazy: true
+          url: ${CAMPUS_DB_URL}
+          username: ${CAMPUS_DB_USERNAME}
+          password: ${CAMPUS_DB_PASSWORD}
+  data:
+    redis:
+      host: ${CAMPUS_REDIS_HOST}
+      port: ${CAMPUS_REDIS_PORT:6379}
+      database: ${CAMPUS_REDIS_DATABASE:0}
+      password: ${CAMPUS_REDIS_PASSWORD}
+
+--- #################### 微信公众号与小程序 ####################
+
+# 上游 WxJava starter 会在启动时创建两个客户端；生产环境必须显式注入，禁止继承本地测试账号。
+wx:
+  mp:
+    app-id: ${CAMPUS_WECHAT_MP_APP_ID}
+    secret: ${CAMPUS_WECHAT_MP_SECRET}
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wx
+      http-client-type: HttpComponents
+  miniapp:
+    appid: ${CAMPUS_WECHAT_MINIAPP_APP_ID}
+    secret: ${CAMPUS_WECHAT_MINIAPP_SECRET}
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wa
+      http-client-type: HttpComponents
+
+--- #################### 校园相关配置 ####################
+
+campus:
+  payment:
+    # 生产必须显式指定真实网关；取值 mock 会被启动守卫拒绝
+    gateway: ${CAMPUS_PAYMENT_GATEWAY}
+
+--- #################### 芋道相关配置 ####################
+
+yudao:
+  pay:
+    order-notify-url: ${CAMPUS_PAYMENT_ORDER_NOTIFY_URL}
+    refund-notify-url: ${CAMPUS_PAYMENT_REFUND_NOTIFY_URL}
+    transfer-notify-url: ${CAMPUS_PAYMENT_TRANSFER_NOTIFY_URL}
+  captcha:
+    enable: true
+  security:
+    mock-enable: false # 禁止模拟登录
+  demo: false
+  access-log:
+    enable: true # 管理员敏感操作留痕，具体审计规约由 M09 完善
+
+mybatis-plus:
+  encryptor:
+    password: ${CAMPUS_MYBATIS_ENCRYPTOR_PASSWORD}
+
+--- #################### 接口文档与监控 ####################
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+knife4j:
+  enable: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics # 生产不开放全部 Actuator 端点

@@ -1,0 +1,17 @@
+{
+  "value": {
+    "code": 1040000001,
+    "message": "金额必须使用整数分",
+    "data": {
+      "retryable": false,
+      "requiredAction": "USER_FIX",
+      "fieldErrors": [
+        {
+          "field": "amountFen",
+          "reason": "金额必须使用整数分"
+        }
+      ]
+    },
+    "traceId": "3a513e8f2123fd3e87f82803508c2bce"
+  }
+}

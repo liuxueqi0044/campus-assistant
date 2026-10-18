@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "samples": [
+    {"id": "S1", "kind": "SCHOOL", "displayName": "示例大学 S1", "schoolId": "S1", "enabled": true},
+    {"id": "S2", "kind": "SCHOOL", "displayName": "示例大学 S2", "schoolId": "S2", "enabled": true},
+    {"id": "C11", "kind": "CAMPUS", "displayName": "S1 主校区", "schoolId": "S1", "campusId": "C11", "enabled": true},
+    {"id": "C12", "kind": "CAMPUS", "displayName": "S1 北校区", "schoolId": "S1", "campusId": "C12", "enabled": true},
+    {"id": "C21", "kind": "CAMPUS", "displayName": "S2 主校区", "schoolId": "S2", "campusId": "C21", "enabled": true},
+    {"id": "U1", "kind": "STUDENT", "displayName": "测试学生 U1", "schoolId": "S1", "campusId": "C11", "enabled": true, "roles": ["STUDENT"]},
+    {"id": "U2", "kind": "STUDENT", "displayName": "测试学生 U2", "schoolId": "S1", "campusId": "C12", "enabled": true, "roles": ["STUDENT"]},
+    {"id": "U3", "kind": "STUDENT", "displayName": "测试学生 U3", "schoolId": "S2", "campusId": "C21", "enabled": true, "roles": ["STUDENT"]},
+    {"id": "R1", "kind": "RUNNER", "displayName": "有效跑腿员 R1", "schoolId": "S1", "campusId": "C11", "enabled": true, "roles": ["RUNNER"]},
+    {"id": "R2", "kind": "RUNNER", "displayName": "停用跑腿员 R2", "schoolId": "S1", "campusId": "C12", "enabled": false, "roles": ["RUNNER"]},
+    {"id": "O1", "kind": "OPERATOR", "displayName": "校级运营 O1", "schoolId": "S1", "enabled": true, "roles": ["OPERATOR"]},
+    {"id": "O2", "kind": "OPERATOR", "displayName": "校级运营 O2", "schoolId": "S2", "enabled": true, "roles": ["OPERATOR"]},
+    {"id": "F1", "kind": "FINANCE", "displayName": "独立财务 F1", "enabled": true, "roles": ["FINANCE"]}
+  ]
+}

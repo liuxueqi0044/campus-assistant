@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://campus-assistant.local/contracts/events/envelope.schema.json",
+  "title": "校园助手事件信封",
+  "description": "M00.02 冻结的事件信封：字段完整、标识为字符串、载荷禁止证件与取件码等敏感值。contractVersion=2026.08-campus.1",
+  "type": "object",
+  "required": ["eventId", "type", "version", "aggregateId", "aggregateVersion", "schoolId", "occurredAt", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "事件编号；同一事实只生成一次，重放沿用原值"
+    },
+    "type": {
+      "type": "string",
+      "pattern": "^campus\\.[a-z0-9]+(\\.[a-z0-9]+)*$",
+      "description": "事件类型，例如 campus.order.created"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "事件结构版本，从 1 开始；未知版本必须进入可观察失败"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/campusId",
+      "description": "聚合编号"
+    },
+    "aggregateVersion": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "聚合版本，用于乱序判定"
+    },
+    "schoolId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$",
+      "description": "事实发生时间，必须带时区偏移"
+    },
+    "traceId": {
+      "type": "string",
+      "description": "产生该事件的请求追踪号，便于跨服务排查"
+    },
+    "payload": {
+      "$ref": "#/$defs/sensitiveFree",
+      "description": "业务载荷；只放业务字段，敏感值必须另行按授权查询"
+    }
+  },
+  "$defs": {
+    "campusId": {
+      "type": "string",
+      "pattern": "^-?[0-9]{1,20}$"
+    },
+    "forbiddenKey": {
+      "description": "大小写不敏感，并允许在任意字符间插入下划线或连字符；效果等价于 Java 先去掉 _/- 再转小写",
+      "type": "string",
+      "pattern": "^(?:[iI][_-]*[dD][_-]*[cC][_-]*[aA][_-]*[rR][_-]*[dD]|[iI][_-]*[dD][_-]*[cC][_-]*[aA][_-]*[rR][_-]*[dD][_-]*[nN][_-]*[oO]|[iI][_-]*[dD][_-]*[cC][_-]*[aA][_-]*[rR][_-]*[dD][_-]*[nN][_-]*[uU][_-]*[mM][_-]*[bB][_-]*[eE][_-]*[rR]|[iI][_-]*[dD][_-]*[nN][_-]*[oO]|[iI][_-]*[dD][_-]*[nN][_-]*[uU][_-]*[mM][_-]*[bB][_-]*[eE][_-]*[rR]|[cC][_-]*[eE][_-]*[rR][_-]*[tT][_-]*[nN][_-]*[oO]|[pP][_-]*[iI][_-]*[cC][_-]*[kK][_-]*[uU][_-]*[pP][_-]*[cC][_-]*[oO][_-]*[dD][_-]*[eE])$"
+    },
+    "sensitiveFree": {
+      "$dynamicAnchor": "sensitiveFree",
+      "oneOf": [
+        {
+          "type": "object",
+          "propertyNames": {
+            "not": {
+              "$ref": "#/$defs/forbiddenKey"
+            }
+          },
+          "additionalProperties": {
+            "$dynamicRef": "#sensitiveFree"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$dynamicRef": "#sensitiveFree"
+          }
+        },
+        {
+          "type": ["string", "number", "integer", "boolean", "null"]
+        }
+      ]
+    }
+  }
+}

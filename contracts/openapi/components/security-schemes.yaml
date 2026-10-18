@@ -1,0 +1,7 @@
+bearerAuth:
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: |
+    学生端使用会员 Token，管理端使用后台 Token（上游 OAuth2 体系，见 M01.01／M01.03）。
+    未认证返回 401 `CAMPUS_AUTH_REQUIRED`，已认证但无权限返回 403 `CAMPUS_PERMISSION_DENIED`。

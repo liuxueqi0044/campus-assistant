@@ -1,0 +1,21 @@
+{
+  "scenario": "CONFLICT",
+  "contractVersion": "2026.08-campus.1",
+  "httpStatus": 409,
+  "body": {
+    "code": 1040000010,
+    "message": "数据已被其他操作修改，请刷新后重试",
+    "data": {
+      "retryable": false,
+      "requiredAction": "USER_FIX",
+      "currentVersion": "7",
+      "currentState": "ACCEPTED"
+    },
+    "traceId": "3a513e8f2123fd3e87f82803508c2bce"
+  },
+  "assertions": [
+    "HTTP 状态为 409",
+    "调用方已有权限时返回 currentVersion 与 currentState",
+    "幂等同键异体与版本冲突是两个不同错误码，不能合并"
+  ]
+}

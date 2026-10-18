@@ -1,0 +1,247 @@
+name: campus-assistant-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Contract checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # actions/checkout v5.1.0, pinned to the reviewed commit.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-python v6.3.0, pinned to the reviewed commit.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Install contract checker dependencies
+        run: python -m pip install --disable-pip-version-check -r contracts/tools/requirements.txt
+      - name: Check contracts
+        run: python contracts/tools/check_contracts.py
+      - name: Test acceptance gates
+        run: python -m unittest discover -s tests/acceptance -p "test_*.py"
+      - name: Scan fixtures and generated evidence for sensitive test data
+        run: python scripts/ci/scan_test_data.py --report artifacts/security/test-data-scan.json
+      - name: Upload test-data scan
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: test-data-scan
+          path: artifacts/security/test-data-scan.json
+          if-no-files-found: error
+
+  database-a:
+    name: Database acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4.11@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a
+        env:
+          MYSQL_DATABASE: campus_acceptance
+          MYSQL_USER: campus_ci
+          MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+          MYSQL_ROOT_PASSWORD: TEST_CAMPUS_ROOT_NOT_A_CREDENTIAL
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pTEST_CAMPUS_ROOT_NOT_A_CREDENTIAL"
+          --health-interval=10s --health-timeout=5s --health-retries=20
+      valkey:
+        image: valkey/valkey:8.1.10-alpine@sha256:d2e18f3410b6f616de1417f570fa55261af2898b9c5b2cfb6781ce2373ea43d1
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="valkey-cli ping | grep -q PONG"
+          --health-interval=10s --health-timeout=5s --health-retries=20
+    steps:
+      # actions/checkout v5.1.0, pinned to the reviewed commit.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-java v5.7.0, pinned to the reviewed commit.
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Run explicit M00.04 A selector
+        id: m00_04
+        continue-on-error: true
+        env:
+          CAMPUS_MYSQL_IT_URL: jdbc:mysql://127.0.0.1:3306/campus_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          CAMPUS_MYSQL_IT_USERNAME: campus_ci
+          CAMPUS_MYSQL_IT_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+        run: python scripts/ci/m00_acceptance.py --module M00.04 --level A --report artifacts/acceptance/m00.04-a.json
+      - name: Run explicit M00.05 A selector
+        id: m00_05
+        if: always()
+        continue-on-error: true
+        env:
+          CAMPUS_MYSQL_IT_URL: jdbc:mysql://127.0.0.1:3306/campus_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          CAMPUS_MYSQL_IT_USERNAME: campus_ci
+          CAMPUS_MYSQL_IT_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+        run: python scripts/ci/m00_acceptance.py --module M00.05 --level A --report artifacts/acceptance/m00.05-a.json
+      - name: Run explicit M01.01 A selector
+        id: m01_01
+        if: always()
+        continue-on-error: true
+        env:
+          CAMPUS_MYSQL_IT_URL: jdbc:mysql://127.0.0.1:3306/campus_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          CAMPUS_MYSQL_IT_USERNAME: campus_ci
+          CAMPUS_MYSQL_IT_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+        run: python scripts/ci/m01_acceptance.py --module M01.01 --level A --report artifacts/acceptance/m01.01-a.json
+      - name: Run M01.01 B full-server integration
+        id: m01_01_b
+        if: always()
+        continue-on-error: true
+        env:
+          CAMPUS_M0101_B_MYSQL_URL: jdbc:mysql://127.0.0.1:3306/campus_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          CAMPUS_M0101_B_MYSQL_USERNAME: campus_ci
+          CAMPUS_M0101_B_MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+          CAMPUS_M0101_B_SCHEMA_GUARD: campus_acceptance
+          CAMPUS_M0101_B_VALKEY_URL: redis://127.0.0.1:6379/0
+          CAMPUS_M0101_B_PREPARE: IMPORT_FIXED_BASELINE
+        run: python scripts/ci/m0101_b_acceptance.py --report artifacts/acceptance/m01.01-b.json
+      - name: Provision isolated M01.03 acceptance schema
+        id: m01_03_schema
+        if: always()
+        continue-on-error: true
+        env:
+          MYSQL_PWD: TEST_CAMPUS_ROOT_NOT_A_CREDENTIAL
+        run: |
+          mysql --protocol=tcp -h 127.0.0.1 -u root -e \
+            "CREATE DATABASE IF NOT EXISTS campus_m0103_acceptance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+             GRANT ALL PRIVILEGES ON campus_m0103_acceptance.* TO 'campus_ci'@'%';"
+      - name: Run explicit M01.03 A selector
+        id: m01_03
+        if: always()
+        continue-on-error: true
+        env:
+          CAMPUS_M0103_MYSQL_URL: jdbc:mysql://127.0.0.1:3306/campus_m0103_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          CAMPUS_M0103_MYSQL_USERNAME: campus_ci
+          CAMPUS_M0103_MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
+        run: python scripts/ci/m01_acceptance.py --module M01.03 --level A --report artifacts/acceptance/m01.03-a.json
+      - name: Scan acceptance evidence for sensitive data
+        id: evidence_scan
+        if: always()
+        continue-on-error: true
+        run: python scripts/ci/scan_test_data.py artifacts/acceptance --report artifacts/security/database-a-report-scan.json
+      - name: Upload database acceptance reports
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: database-a-reports
+          path: |
+            artifacts/acceptance/*.json
+            artifacts/security/database-a-report-scan.json
+          if-no-files-found: error
+      # Every selector and the evidence scan are allowed to finish so all reports are archived.
+      # This final step restores fail-fast release semantics and also validates report contents.
+      - name: Enforce database acceptance gate
+        if: always()
+        env:
+          M00_04_OUTCOME: ${{ steps.m00_04.outcome }}
+          M00_05_OUTCOME: ${{ steps.m00_05.outcome }}
+          M01_01_OUTCOME: ${{ steps.m01_01.outcome }}
+          M01_01_B_OUTCOME: ${{ steps.m01_01_b.outcome }}
+          M01_03_SCHEMA_OUTCOME: ${{ steps.m01_03_schema.outcome }}
+          M01_03_OUTCOME: ${{ steps.m01_03.outcome }}
+          EVIDENCE_SCAN_OUTCOME: ${{ steps.evidence_scan.outcome }}
+        run: |
+          python scripts/ci/check_acceptance_reports.py \
+            --report M00.04=artifacts/acceptance/m00.04-a.json \
+            --report M00.05=artifacts/acceptance/m00.05-a.json \
+            --report M01.01=artifacts/acceptance/m01.01-a.json \
+            --report M01.01:B=artifacts/acceptance/m01.01-b.json \
+            --report M01.03=artifacts/acceptance/m01.03-a.json
+          test "$M00_04_OUTCOME" = success
+          test "$M00_05_OUTCOME" = success
+          test "$M01_01_OUTCOME" = success
+          test "$M01_01_B_OUTCOME" = success
+          test "$M01_03_SCHEMA_OUTCOME" = success
+          test "$M01_03_OUTCOME" = success
+          test "$EVIDENCE_SCAN_OUTCOME" = success
+
+  backend:
+    name: Backend compilation and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # actions/checkout v5.1.0, pinned to the reviewed commit.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-java v5.7.0, pinned to the reviewed commit.
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Backend test suite
+        working-directory: backend
+        run: mvn -B -pl campus-common,campus-test-support,campus-module-identity -am test
+      - name: Complete backend build
+        working-directory: backend
+        run: mvn -B package -DskipTests
+      - name: Record backend runtime dependencies
+        working-directory: backend
+        run: |
+          mkdir -p ../artifacts/dependencies
+          mvn -B -pl yudao-server -am dependency:tree -Dscope=runtime > ../artifacts/dependencies/backend.txt
+      - name: Upload backend dependency inventory
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: backend-dependencies
+          path: artifacts/dependencies/backend.txt
+          if-no-files-found: error
+
+  frontend:
+    name: Student frontend checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend/apps/student
+    steps:
+      # actions/checkout v5.1.0, pinned to the reviewed commit.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-node v5.0.0, pinned to the reviewed commit.
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/apps/student/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build:h5
+      - run: npm run build:mp-weixin
+      - name: Record frontend dependencies
+        run: |
+          mkdir -p ../../../artifacts/dependencies
+          npm ls --all --json > ../../../artifacts/dependencies/frontend.json
+      - name: Upload frontend dependency inventory
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: frontend-dependencies
+          path: artifacts/dependencies/frontend.json
+          if-no-files-found: error
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Full history is needed so the action can evaluate the exact push/PR commit range.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+      # gitleaks-action v2, pinned to the peeled commit behind its annotated tag.
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

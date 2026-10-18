@@ -1,0 +1,13 @@
+{
+  "scenario": "TIMEOUT",
+  "contractVersion": "2026.08-campus.1",
+  "adapter": "external-payment",
+  "businessNo": "CAMPUS-M05-0000000001",
+  "outcome": "UNKNOWN",
+  "retryable": false,
+  "assertions": [
+    "外部调用结果未知时不得自动重试下单，必须按稳定业务单号核实结果",
+    "超时样例用于 M00.05 的消费重试与 M08 的支付衔接验收",
+    "不得把网络调用包成长事务"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "value": {
+    "code": 1040000010,
+    "message": "数据已被其他操作修改，请刷新后重试",
+    "data": {
+      "retryable": false,
+      "requiredAction": "USER_FIX",
+      "currentVersion": "7",
+      "currentState": "ACCEPTED"
+    },
+    "traceId": "3a513e8f2123fd3e87f82803508c2bce"
+  }
+}

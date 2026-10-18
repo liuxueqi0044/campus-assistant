@@ -1,0 +1,342 @@
+page {
+  --color-primary: #07855d;
+  --color-bg: #f7f8f7;
+  --color-surface: #fff;
+  --color-text: #202b25;
+  --color-muted: #78837c;
+  --color-line: #e9eeea;
+  --wot-color-theme: #07855d;
+  background: #edf0ec;
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei',
+    sans-serif;
+  font-size: calc(16px * var(--font-scale, 1));
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+view,
+text,
+button,
+input,
+textarea,
+scroll-view {
+  box-sizing: border-box;
+}
+button,
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+button {
+  border-radius: 8px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+button::after {
+  border: 0;
+}
+button[disabled] {
+  opacity: 0.48;
+}
+input,
+textarea {
+  color: var(--color-text);
+}
+image {
+  display: block;
+}
+button:focus-visible {
+  outline: 2px solid #07855d;
+  outline-offset: 2px;
+}
+.page {
+  max-width: 520px;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-bg);
+  padding-bottom: calc(86px + env(safe-area-inset-bottom));
+  overflow-wrap: anywhere;
+}
+.detail-page {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+.content {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.surface {
+  background: var(--color-surface);
+}
+.section {
+  margin-top: 20px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.between {
+  justify-content: space-between;
+}
+.muted {
+  color: var(--color-muted);
+}
+.caption {
+  font-size: calc(13px * var(--font-scale, 1));
+  line-height: 1.6;
+}
+.title {
+  font-size: calc(18px * var(--font-scale, 1));
+  font-weight: 600;
+  line-height: 1.5;
+}
+.heading {
+  font-size: calc(22px * var(--font-scale, 1));
+  font-weight: 600;
+  line-height: 1.4;
+}
+.chip,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  font-size: calc(12px * var(--font-scale, 1));
+  border-radius: 4px;
+  background: #eef4ef;
+  color: #597461;
+}
+.divider {
+  height: 1px;
+  background: var(--color-line);
+  margin: 16px 0;
+}
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: calc(16px * var(--font-scale, 1));
+  font-weight: 500;
+  border-radius: 9px;
+  margin: 0;
+  line-height: 1.45;
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn-secondary {
+  background: #edf3ee;
+  color: #23764e;
+  border: 1px solid #e0e9e2;
+}
+.btn-danger {
+  background: #fff0ec;
+  color: #a64e3b;
+}
+.field {
+  margin: 18px 0;
+}
+.label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: calc(14px * var(--font-scale, 1));
+  font-weight: 500;
+}
+.form-input {
+  height: 49px;
+  width: 100%;
+  padding: 0 14px;
+  border: 1px solid #e1e8e2;
+  background: white;
+  border-radius: 8px;
+  font-size: calc(16px * var(--font-scale, 1));
+}
+.form-textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px 14px;
+  border: 1px solid #e1e8e2;
+  background: white;
+  border-radius: 8px;
+  font-size: calc(16px * var(--font-scale, 1));
+}
+.form-error {
+  margin: 12px 0;
+  color: #9e4b35;
+  background: #fff0e9;
+  border: 1px solid #f2dbcf;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: calc(14px * var(--font-scale, 1));
+  line-height: 1.6;
+}
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--color-line);
+  z-index: 30;
+}
+.action-bar .btn {
+  flex: 1;
+  min-width: 0;
+}
+.icon-button {
+  padding: 0;
+  margin: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.text-button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  color: #07855d;
+  background: transparent;
+  font-size: calc(14px * var(--font-scale, 1));
+  margin: 0;
+}
+.hint {
+  font-size: calc(13px * var(--font-scale, 1));
+  color: #849087;
+  line-height: 1.7;
+}
+.loading-bar {
+  background: #eef4ef;
+  border-radius: 10px;
+  padding: 22px;
+  text-align: center;
+  color: #5d7868;
+  font-size: calc(14px * var(--font-scale, 1));
+}
+.large-type {
+  --font-scale: 1.125;
+}
+.page,
+.chat-page,
+.campus-sheet {
+  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+}
+.action-bar .btn {
+  width: auto;
+}
+.activity-actions .footer-state {
+  min-width: 0;
+}
+.status-panel > .app-icon {
+  flex: 0 0 auto;
+}
+/* #ifdef H5 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei',
+    sans-serif;
+}
+.page uni-button::after,
+.chat-page uni-button::after,
+.campus-sheet uni-button::after {
+  border: 0;
+}
+uni-page-body {
+  --color-primary: #07855d;
+  --color-bg: #f7f8f7;
+  --color-surface: #fff;
+  --color-text: #202b25;
+  --color-muted: #78837c;
+  --color-line: #e9eeea;
+  --wot-color-theme: #07855d;
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei',
+    sans-serif;
+  font-size: calc(16px * var(--font-scale, 1));
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+uni-view,
+uni-text,
+uni-button,
+uni-input,
+uni-textarea,
+uni-scroll-view {
+  box-sizing: border-box;
+}
+uni-button,
+uni-input,
+uni-textarea {
+  font-family: inherit;
+}
+uni-button::after {
+  border: 0;
+}
+uni-button:focus-visible {
+  outline: 2px solid #07855d;
+  outline-offset: 2px;
+}
+uni-image {
+  display: block;
+}
+body {
+  margin: 0;
+  background: #edf0ec;
+}
+uni-page-body {
+  min-height: 100vh;
+}
+uni-page-wrapper {
+  background: #edf0ec;
+}
+uni-button {
+  box-sizing: border-box;
+}
+uni-input {
+  min-width: 0;
+}
+uni-textarea {
+  box-sizing: border-box;
+}
+.page {
+  box-shadow: 0 0 0 1px #e4e9e3;
+}
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6e0d9;
+  border-radius: 4px;
+}
+/* #endif */
+@media (max-width: 350px) {
+  .content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .action-bar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .heading {
+    font-size: calc(20px * var(--font-scale, 1));
+  }
+}

@@ -1,0 +1,105 @@
+openapi: 3.1.0
+info:
+  title: 校园助手 管理端 API
+  version: 2026.08-campus.1
+  license:
+    name: MIT
+    identifier: MIT
+  description: |
+    管理端（后台）与后端之间的 HTTP 契约。
+
+    信封、错误码、分页与类型规则与学生端完全一致；差异只在入口前缀 `/admin-api/campus/v1`
+    与权限要求（学校范围授权由 M01.04 定义，管理端工作台由 M11 交付）。
+servers:
+  - url: /
+    description: 管理端路径统一以 /admin-api/campus/v1 开头
+tags:
+  - name: ops
+    description: 运维探针（M00.01）
+  - name: membership-verification
+    description: 成员认证审核（M01.03）
+security:
+  - bearerAuth: []
+paths:
+  /admin-api/campus/v1/verifications/{id}/review:
+    post:
+      operationId: reviewMembershipVerification
+      tags: [membership-verification]
+      summary: 审核校园身份认证申请
+      description: |
+        只使用当前后台登录操作者；学校范围与 VERIFICATION_REVIEW 权限由服务端授权端口判定。
+        不接受 operatorId、schoolId 或任何材料 URL。相同 Idempotency-Key 与相同审核命令可安全重试。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: "./components/schemas.yaml#/CampusId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/ReviewVerificationRequest"
+      responses:
+        "200":
+          description: 审核完成或返回同一幂等命令的既有结果
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/VerificationReviewResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "404":
+          $ref: "./components/responses.yaml#/NotFound"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+  /health/readiness:
+    get:
+      operationId: getCampusReadiness
+      tags: [ops]
+      summary: 就绪探针（与学生端同一实现）
+      security: []
+      responses:
+        "200":
+          description: 就绪状态
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusReadinessResponse"
+              examples:
+                down:
+                  $ref: "./examples/campus-response-success.json"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+x-campus-conventions:
+  contractVersion: 2026.08-campus.1
+  errorCodeRegistry: ./campus-error-codes.csv
+  adminPrefix: /admin-api/campus/v1
+  permissions: 每个管理端点必须声明学校范围与权限，跨校只读统计不得因此获得私有字段
+  retryHints: 错误 data.requiredAction 取 RETRY / USER_FIX / OPERATOR
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: "./components/security-schemes.yaml#/bearerAuth"

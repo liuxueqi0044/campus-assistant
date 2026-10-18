@@ -1,0 +1,8 @@
+X-Trace-Id:
+  description: |
+    本次请求的链路追踪编号，与响应体 `traceId` 一致。
+    客户端入站同名头不作为可信链路身份、不会直接透传。可信网关应使用标准 trace context
+    建立 OpenTelemetry 活动链路；无活动链路时由服务端生成。
+  schema:
+    type: string
+    example: 3a513e8f2123fd3e87f82803508c2bce

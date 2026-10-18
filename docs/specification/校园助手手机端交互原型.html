@@ -1,0 +1,168 @@
+<div id="campus-assistant-preview" aria-label="校园助手手机界面">
+  <style>
+    #campus-assistant-preview{--ca-bg:light-dark(#f5f6f7,#171c19);--ca-surface:light-dark(#ffffff,#222925);--ca-ink:light-dark(#202522,#e8eee9);--ca-muted:light-dark(#69736d,#a1b0a7);--ca-line:light-dark(#e9eeea,#384139);--ca-accent:light-dark(#07855d,#54d6a5);--ca-soft:light-dark(#eaf6f0,#203e32);--ca-price:light-dark(#ad502e,#efa181);--ca-font:16px;--ca-radius:10px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--ca-ink);width:100%;line-height:1.5}
+    #campus-assistant-preview *{box-sizing:border-box}
+    #campus-assistant-preview .ca-phone{max-width:398px;margin:0 auto;background:var(--ca-bg);border:1px solid var(--ca-line);border-radius:20px;overflow:hidden;position:relative;font-size:var(--ca-font)}
+    #campus-assistant-preview button,#campus-assistant-preview input,#campus-assistant-preview textarea,#campus-assistant-preview select{font-family:inherit;font-size:inherit;color:inherit}
+    #campus-assistant-preview button{cursor:pointer;border:0;background:transparent;-webkit-tap-highlight-color:transparent}
+    #campus-assistant-preview button:focus-visible{outline:2px solid var(--ca-accent);outline-offset:-2px}
+    #campus-assistant-preview svg{width:22px;height:22px;flex-shrink:0;stroke-width:1.7}
+    #campus-assistant-preview .ca-top{padding:18px 12px 8px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    #campus-assistant-preview .ca-title{font-size:20px;font-weight:500;margin:0}
+    #campus-assistant-preview .ca-subtitle{color:var(--ca-muted);font-size:13px;display:flex;align-items:center;gap:3px;padding:0;min-height:26px}
+    #campus-assistant-preview .ca-subtitle svg{width:14px;height:14px}
+    #campus-assistant-preview .ca-icon-button{width:44px;height:44px;display:grid;place-items:center;border-radius:var(--ca-radius);flex-shrink:0}
+    #campus-assistant-preview .ca-icon-button:hover{background:var(--ca-soft)}
+    #campus-assistant-preview .ca-main{min-height:526px;padding-bottom:20px}
+    #campus-assistant-preview .ca-search{display:flex;align-items:center;gap:8px;background:var(--ca-surface);margin:4px 16px 12px;border-radius:var(--ca-radius);padding:0 12px;color:var(--ca-muted);min-height:44px}
+    #campus-assistant-preview .ca-search svg{width:18px;height:18px}
+    #campus-assistant-preview .ca-search input{background:transparent;border:0;outline:none;width:100%;min-width:0;height:44px;font-size:16px;color:var(--ca-ink)}
+    #campus-assistant-preview .ca-search:focus-within{outline:2px solid var(--ca-accent)}
+    #campus-assistant-preview .ca-search input::placeholder{color:var(--ca-muted)}
+    #campus-assistant-preview .ca-next{margin:0 16px 12px;background:var(--ca-soft);border-radius:var(--ca-radius);display:flex;align-items:center;gap:10px;padding:12px;text-align:left;width:calc(100% - 32px)}
+    #campus-assistant-preview .ca-next svg{color:var(--ca-accent);width:18px;height:18px}
+    #campus-assistant-preview .ca-next .ca-next-main{flex:1;font-size:14px}
+    #campus-assistant-preview .ca-secondary{color:var(--ca-muted);font-size:13px}
+    #campus-assistant-preview .ca-tabs{display:flex;padding:0 16px;background:var(--ca-surface);gap:24px;border-bottom:1px solid var(--ca-line)}
+    #campus-assistant-preview .ca-tabs button{min-height:48px;padding:0 2px;position:relative;font-weight:500}
+    #campus-assistant-preview .ca-tabs button[aria-pressed="true"]{color:var(--ca-accent)}
+    #campus-assistant-preview .ca-tabs button[aria-pressed="true"]:after{content:"";position:absolute;bottom:0;height:3px;left:calc(50% - 10px);width:20px;background:var(--ca-accent);border-radius:2px}
+    #campus-assistant-preview .ca-filters{display:flex;gap:6px;padding:10px 12px;background:var(--ca-surface);flex-wrap:wrap}
+    #campus-assistant-preview .ca-filters button{font-size:13px;padding:6px 10px;min-height:36px;color:var(--ca-muted);border-radius:6px}
+    #campus-assistant-preview .ca-filters button[aria-pressed="true"]{background:var(--ca-soft);color:var(--ca-accent)}
+    #campus-assistant-preview .ca-list{background:var(--ca-surface)}
+    #campus-assistant-preview .ca-item{width:100%;display:flex;align-items:center;text-align:left;gap:12px;padding:14px 16px;position:relative}
+    #campus-assistant-preview .ca-item+.ca-item:before{content:"";height:1px;background:var(--ca-line);position:absolute;left:16px;right:16px;top:0}
+    #campus-assistant-preview .ca-item:hover{background:var(--ca-bg)}
+    #campus-assistant-preview .ca-thumb{width:72px;height:76px;flex-shrink:0;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:8px;gap:5px;color:var(--ca-muted);background:var(--ca-bg);font-size:11px}
+    #campus-assistant-preview .ca-book{background:light-dark(#e8eef3,#273944);color:light-dark(#516476,#b3c9d9)}
+    #campus-assistant-preview .ca-thumb svg{width:30px;height:30px;stroke-width:1.3}
+    #campus-assistant-preview .ca-copy{flex:1;min-width:0}
+    #campus-assistant-preview .ca-name{font-size:var(--ca-font);font-weight:500;margin-bottom:5px;overflow-wrap:anywhere}
+    #campus-assistant-preview .ca-price{font-size:17px;color:var(--ca-price);font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
+    #campus-assistant-preview .ca-price small{font-weight:400;font-size:12px;color:var(--ca-muted)}
+    #campus-assistant-preview .ca-caption{font-size:12px;color:var(--ca-muted);text-align:center;padding:16px 12px 0}
+    #campus-assistant-preview .ca-nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--ca-surface);border-top:1px solid var(--ca-line);padding:6px 0 12px}
+    #campus-assistant-preview .ca-nav button{min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ca-muted);font-size:12px}
+    #campus-assistant-preview .ca-nav button[aria-current="page"]{color:var(--ca-accent)}
+    #campus-assistant-preview .ca-nav button svg{width:23px;height:23px}
+    #campus-assistant-preview .ca-block{margin:12px 16px;background:var(--ca-surface);border-radius:var(--ca-radius);padding:16px}
+    #campus-assistant-preview .ca-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    #campus-assistant-preview .ca-daybar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:8px 12px 20px}
+    #campus-assistant-preview .ca-daybar button{font-size:13px;min-height:64px;border-radius:8px;color:var(--ca-muted);padding:5px 0}
+    #campus-assistant-preview .ca-daybar b{display:block;font-size:17px;margin-top:5px;font-weight:500;color:var(--ca-ink)}
+    #campus-assistant-preview .ca-daybar button[aria-pressed="true"]{background:var(--ca-accent);color:light-dark(#fff,#10251c)}
+    #campus-assistant-preview .ca-daybar button[aria-pressed="true"] b{color:inherit}
+    #campus-assistant-preview .ca-section{font-size:14px;color:var(--ca-muted);padding:0 16px;margin:16px 0 8px}
+    #campus-assistant-preview .ca-course{margin:0 16px 10px;display:flex;gap:14px;align-items:stretch}
+    #campus-assistant-preview .ca-course-time{font-size:14px;width:42px;padding-top:14px;flex-shrink:0;font-variant-numeric:tabular-nums}
+    #campus-assistant-preview .ca-course button{flex:1;min-width:0;padding:14px;text-align:left;background:var(--ca-surface);border-radius:var(--ca-radius);border-left:3px solid var(--ca-accent)}
+    #campus-assistant-preview .ca-course .ca-name{margin-bottom:6px}
+    #campus-assistant-preview .ca-avatar{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;background:var(--ca-soft);color:var(--ca-accent);border-radius:10px;font-size:18px}
+    #campus-assistant-preview .ca-badge{display:inline-block;width:7px;height:7px;border-radius:50%;background:light-dark(#cf4848,#ed8383);margin-left:6px}
+    #campus-assistant-preview .ca-menu{background:var(--ca-surface);margin:12px 0}
+    #campus-assistant-preview .ca-menu button{width:100%;min-height:54px;display:flex;align-items:center;gap:12px;padding:12px 16px;text-align:left}
+    #campus-assistant-preview .ca-menu button+button{border-top:1px solid var(--ca-line)}
+    #campus-assistant-preview .ca-menu button>span{flex:1}
+    #campus-assistant-preview .ca-menu button svg:last-child{width:16px;height:16px;color:var(--ca-muted)}
+    #campus-assistant-preview .ca-primary{background:var(--ca-accent);color:light-dark(#fff,#10251c);border-radius:var(--ca-radius);min-height:48px;width:100%;padding:10px 16px;font-weight:500}
+    #campus-assistant-preview .ca-outline{border:1px solid var(--ca-line);background:var(--ca-surface);min-height:44px;border-radius:8px;padding:8px 12px;color:var(--ca-accent)}
+    #campus-assistant-preview .ca-detail{padding:0 16px}
+    #campus-assistant-preview .ca-detail h3{font-size:20px;font-weight:500;margin:16px 0 8px}
+    #campus-assistant-preview .ca-detail p{margin:12px 0;line-height:1.7}
+    #campus-assistant-preview .ca-detail-hero{height:150px;border-radius:var(--ca-radius);background:var(--ca-soft);display:flex;align-items:center;justify-content:center;gap:12px;color:var(--ca-accent);font-size:22px;font-weight:500}
+    #campus-assistant-preview .ca-detail-hero svg{width:44px;height:44px}
+    #campus-assistant-preview .ca-facts{margin:16px 0;background:var(--ca-surface);border-radius:var(--ca-radius);padding:4px 14px}
+    #campus-assistant-preview .ca-facts>div{padding:12px 0;display:flex;justify-content:space-between;gap:12px;font-size:14px}
+    #campus-assistant-preview .ca-facts>div+div{border-top:1px solid var(--ca-line)}
+    #campus-assistant-preview .ca-facts span:first-child{color:var(--ca-muted);flex-shrink:0}
+    #campus-assistant-preview .ca-facts span:last-child{text-align:right}
+    #campus-assistant-preview label.ca-field{display:block;margin:14px 0;font-size:14px}
+    #campus-assistant-preview .ca-field input,#campus-assistant-preview .ca-field textarea,#campus-assistant-preview .ca-field select{display:block;width:100%;padding:12px;background:var(--ca-surface);border:1px solid var(--ca-line);border-radius:8px;font-size:16px;margin-top:6px;min-width:0}
+    #campus-assistant-preview .ca-field textarea{min-height:100px;resize:vertical}
+    #campus-assistant-preview .ca-chat{margin:20px 16px;display:flex;gap:10px}
+    #campus-assistant-preview .ca-bubble{background:var(--ca-surface);padding:12px;border-radius:10px;font-size:15px;max-width:calc(100% - 52px)}
+    #campus-assistant-preview .ca-chat.mine{justify-content:flex-end}
+    #campus-assistant-preview .ca-chat.mine .ca-bubble{background:var(--ca-soft)}
+    #campus-assistant-preview .ca-toast{position:absolute;bottom:84px;left:16px;right:16px;background:var(--ca-ink);color:var(--ca-surface);padding:12px 16px;border-radius:10px;font-size:14px;text-align:center;z-index:5;pointer-events:none}
+    #campus-assistant-preview .ca-toast:empty{display:none}
+    @media(pointer:coarse){#campus-assistant-preview .ca-filters button{min-height:44px}}
+    @media(max-width:350px){#campus-assistant-preview .ca-phone{border-radius:12px}#campus-assistant-preview .ca-thumb{width:60px;height:68px}#campus-assistant-preview .ca-tabs{gap:22px}}
+  </style>
+  <div class="ca-phone">
+    <header class="ca-top"><div><h2 class="ca-title">校园</h2><button class="ca-subtitle" data-action="campus">示例大学 · 东校区 <i data-lucide="chevron-down" aria-hidden="true"></i></button></div><button class="ca-icon-button" aria-label="发布" data-action="publish"><i data-lucide="plus" aria-hidden="true"></i></button></header>
+    <main class="ca-main" aria-label="校园内容"></main>
+    <nav class="ca-nav" aria-label="主要功能">
+      <button type="button" data-nav="campus" aria-current="page"><i data-lucide="layout-grid" aria-hidden="true"></i><span>校园</span></button>
+      <button type="button" data-nav="schedule"><i data-lucide="calendar-days" aria-hidden="true"></i><span>课表</span></button>
+      <button type="button" data-nav="messages"><i data-lucide="message-circle" aria-hidden="true"></i><span>消息</span></button>
+      <button type="button" data-nav="me"><i data-lucide="user-round" aria-hidden="true"></i><span>我</span></button>
+    </nav>
+    <div class="ca-toast" role="status" aria-live="polite"></div>
+  </div>
+  <script>
+  (()=>{
+    const root=document.getElementById('campus-assistant-preview');
+    const main=root.querySelector('.ca-main');
+    const header=root.querySelector('.ca-top');
+    const state={page:'campus',service:'market',filter:'全部',detail:null,day:3,joined:false,accepted:false,campus:'东校区'};
+    const design={font:16,radius:10,accent:'青绿'};
+    let timer;
+    const icon=n=>`<i data-lucide="${n}" aria-hidden="true"></i>`;
+    const products=[{id:'book',name:'高等数学 · 第七版 上册',sub:'少量铅笔笔记，书页完整',price:'18',place:'图书馆门口',time:'10分钟前',type:'教材',icon:'book-open',thumb:'高等数学'}, {id:'lamp',name:'可调光护眼台灯',sub:'三档亮度，插电使用',price:'35',place:'三号宿舍楼下',time:'25分钟前',type:'宿舍用品',icon:'lamp-desk',thumb:'桌面照明'}, {id:'racket',name:'入门羽毛球拍',sub:'附拍袋，适合日常打球',price:'45',place:'体育馆门口',time:'1小时前',type:'运动',icon:'circle-dot',thumb:'运动装备'}];
+    function toast(t){clearTimeout(timer);root.querySelector('.ca-toast').textContent=t;timer=setTimeout(()=>{root.querySelector('.ca-toast').textContent='';},3200);}
+    function icons(){if(globalThis.lucide)globalThis.lucide.createIcons({attrs:{width:22,height:22}});}
+    function head(title,sub,action='publish',actionIcon='plus') {header.innerHTML=`${state.detail?`<button class="ca-icon-button" data-action="back" aria-label="返回">${icon('chevron-left')}</button>`:''}<div style="flex:1"><h2 class="ca-title">${title}</h2>${sub?`<div class="ca-secondary">${sub}</div>`:''}</div>${action?`<button class="ca-icon-button" data-action="${action}" aria-label="${action==='import'?'导入课表':action==='publish'?'发布':'设置'}">${icon(actionIcon)}</button>`:''}`;}
+    function cards(){return products.filter(p=>state.filter==='全部'||p.type===state.filter).map(p=>`<button type="button" class="ca-item" data-product="${p.id}"><span class="ca-thumb ${p.id==='book'?'ca-book':''}">${icon(p.icon)}<span>${p.thumb}</span></span><span class="ca-copy"><div class="ca-name">${p.name}</div><div class="ca-secondary">${p.sub}</div><div class="ca-price">¥${p.price}<small>${p.place}</small></div><div class="ca-secondary" style="font-size:12px;margin-top:4px">${p.time}</div></span></button>`).join('');}
+    function campus(){
+      head('校园','');header.querySelector('div').insertAdjacentHTML('beforeend',`<button class="ca-subtitle" data-action="campus">示例大学 · ${state.campus}${icon('chevron-down')}</button>`);
+      const types={market:['全部','教材','宿舍用品','运动'],errands:['全部','快递代取','物品代送'],events:['全部','运动','桌游','社团']};
+      main.innerHTML=`<label class="ca-search">${icon('search')}<input aria-label="搜索当前校园内容" placeholder="${state.service==='market'?'搜索本校闲置或求购':state.service==='errands'?'搜索跑腿需求':'搜索活动或兴趣'}" data-search></label><button class="ca-next" data-nav="schedule">${icon('clock-3')}<span class="ca-next-main">下一节 · 高等数学 <span class="ca-secondary">10:10</span><div class="ca-secondary">教学楼 A203</div></span>${icon('chevron-right')}</button><div class="ca-tabs" aria-label="校园服务"><button data-service="market" aria-pressed="${state.service==='market'}">二手</button><button data-service="errands" aria-pressed="${state.service==='errands'}">跑腿</button><button data-service="events" aria-pressed="${state.service==='events'}">活动</button></div><div class="ca-filters">${types[state.service].map(t=>`<button data-filter="${t}" aria-pressed="${state.filter===t}">${t}</button>`).join('')}</div><div class="ca-list" data-results></div><div class="ca-caption">${state.service==='market'?'同校区见面，先看物品再交易':state.service==='errands'?'看清要求与报酬，再确认接单':'找到同好，把空闲留给喜欢的事'}</div>`;
+      const list=main.querySelector('[data-results]');
+      if(state.service==='market') list.innerHTML=cards();
+      if(state.service==='errands') list.innerHTML=[{type:'快递代取',name:'帮取一个小件快递',sub:'东门驿站 → 三号宿舍楼下',meta:'今天 12:30 前 · 1kg以内',price:'3.20',id:'parcel'},{type:'物品代送',name:'把资料送到图书馆',sub:'教学楼 A栋 → 图书馆门口',meta:'今天 14:00 前 · 文件袋',price:'4.80',id:'document'}].filter(r=>state.filter==='全部'||state.filter===r.type).map(r=>`<button class="ca-item" data-run="${r.id}"><div class="ca-copy"><div class="ca-name">${r.name}</div><div class="ca-secondary">${r.sub}</div><div class="ca-secondary" style="margin-top:6px">${r.meta}</div><div class="ca-price">¥${r.price}<small>接单报酬 · 待接单</small></div></div>${icon('chevron-right')}</button>`).join('');
+      if(state.service==='events') list.innerHTML=[{type:'运动',name:'周五一起打羽毛球',sub:'周五 18:30 · 校体育馆',meta:'还差 2人 · 场地费现场均摊',id:'badminton',icon:'circle-dot'},{type:'桌游',name:'周末桌游，新手也欢迎',sub:'周六 14:00 · 学生活动中心',meta:'还差 3人 · 免费参加',id:'boardgame',icon:'dice-5'},{type:'社团',name:'摄影社 · 校园散步',sub:'周日 16:00 · 图书馆门口集合',meta:'还可报名 6人 · 免费参加',id:'photo',icon:'camera'}].filter(e=>state.filter==='全部'||state.filter===e.type).map(e=>`<button class="ca-item" data-event="${e.id}"><span class="ca-thumb">${icon(e.icon)}</span><span class="ca-copy"><div class="ca-name">${e.name}</div><div class="ca-secondary">${e.sub}</div><div class="ca-secondary" style="margin-top:8px;color:var(--ca-accent)">${e.meta}</div></span></button>`).join('');
+    }
+    function schedule(){head('课表','2026 秋季 · 第 2 周','import','download');const days=['一','二','三','四','五','六','日'];main.innerHTML=`<div class="ca-daybar">${days.map((d,i)=>`<button data-day="${i}" aria-label="周${d}，9月${14+i}日" aria-pressed="${state.day===i}">${d}<b>${14+i}</b></button>`).join('')}</div><div class="ca-section">9月${14+state.day}日 · 星期${days[state.day]}</div>${state.day===3?`<div class="ca-course"><div class="ca-course-time">08:20<div class="ca-secondary">09:55</div></div><button data-course="大学英语"><div class="ca-name">大学英语</div><div class="ca-secondary">教学楼 B102 · 王老师</div></button></div><div class="ca-course"><div class="ca-course-time">10:10<div class="ca-secondary">11:45</div></div><button data-course="高等数学"><div class="ca-name">高等数学</div><div class="ca-secondary">教学楼 A203 · 陈老师</div></button></div><div class="ca-section">下午</div><div class="ca-course"><div class="ca-course-time">14:00<div class="ca-secondary">15:35</div></div><button data-course="程序设计基础"><div class="ca-name">程序设计基础</div><div class="ca-secondary">实验楼 302 · 李老师</div></button></div>`:`<div class="ca-block"><div class="ca-name">这一天没有课程</div><div class="ca-secondary">可以留一点时间给自己。</div><button class="ca-outline" data-action="explore" style="margin-top:16px">看看校园活动</button></div>`}<div class="ca-caption">个人课表仅自己可见</div>`;}
+    function messages(){head('消息','',null);main.innerHTML=`<div class="ca-list"><button class="ca-item" data-action="notice"><span class="ca-avatar">${icon('bell')}</span><span class="ca-copy"><div class="ca-row"><span class="ca-name">服务通知</span><span class="ca-secondary">09:20</span></div><div class="ca-secondary">羽毛球活动明天开始<span class="ca-badge"></span></div></span></button><button class="ca-item" data-action="chat"><span class="ca-avatar">林</span><span class="ca-copy"><div class="ca-row"><span class="ca-name">小林</span><span class="ca-secondary">昨天</span></div><div class="ca-secondary">教材还在，今晚可以面交。</div></span></button><button class="ca-item" data-action="runstatus"><span class="ca-avatar">${icon('package')}</span><span class="ca-copy"><div class="ca-row"><span class="ca-name">我的跑腿</span><span class="ca-secondary">昨天</span></div><div class="ca-secondary">上次快递代取已完成</div></span></button></div>`;}
+    function me(){head('我','', 'settings','settings');main.innerHTML=`<div class="ca-block ca-row" style="justify-content:flex-start"><div class="ca-avatar" style="width:56px;height:56px;font-size:22px">夏</div><div><div class="ca-name">小夏</div><div class="ca-secondary">示例大学 · ${state.campus}</div><div class="ca-secondary" style="color:var(--ca-accent)">已认证学生 · 演示身份</div></div></div><div class="ca-menu">${[['shopping-bag','我的发布','myposts'],['receipt-text','我的订单','runstatus'],['calendar-check','我的活动','myevents'],['heart','我的收藏','favorites']].map(([i,t,a])=>`<button data-action="${a}">${icon(i)}<span>${t}</span>${icon('chevron-right')}</button>`).join('')}</div><div class="ca-menu">${[['bike','成为接单同学','runner'],['circle-help','帮助与反馈','help'],['settings','设置','settings']].map(([i,t,a])=>`<button data-action="${a}">${icon(i)}<span>${t}</span>${icon('chevron-right')}</button>`).join('')}</div>`;}
+    function detail(){const d=state.detail;head(d.title,'',null);if(d.kind==='product'){const p=products.find(p=>p.id===d.id);main.innerHTML=`<div class="ca-detail"><div class="ca-detail-hero">${icon(p.icon)}${p.thumb}</div><h3>${p.name}</h3><div class="ca-price">¥${p.price}</div><p>${p.sub}。支持当面检查，交接时间可以商量。</p><div class="ca-facts"><div><span>交接地点</span><span>${p.place}</span></div><div><span>卖家</span><span>小林 · 已认证学生</span></div><div><span>商品状态</span><span>在售</span></div></div><button class="ca-primary" data-action="chat">联系卖家</button><div class="ca-caption">此处为演示商品</div></div>`;}
+      else if(d.kind==='run'){const parcel=d.id==='parcel';main.innerHTML=`<div class="ca-detail"><h3>${parcel?'帮取一个小件快递':'把资料送到图书馆'}</h3><div class="ca-price">¥${parcel?'3.20':'4.80'} <small>接单同学实际报酬</small></div><div class="ca-facts"><div><span>取件</span><span>${parcel?'东门快递驿站':'教学楼 A栋'}</span></div><div><span>送达</span><span>${parcel?'三号宿舍楼下':'图书馆门口'}</span></div><div><span>要求</span><span>${parcel?'今天 12:30 前 · 1kg以内':'今天 14:00 前 · 文件袋'}</span></div><div><span>进度</span><span>${state.accepted?'已接单（演示）':'待接单'}</span></div></div><p class="ca-secondary">确认能按时完成后接单。取件码与具体交接信息仅在接单后向接单者展示。</p><button class="ca-primary" data-action="accept">${state.accepted?'查看交付步骤':'确认接单'}</button><div class="ca-caption">演示订单，不会实际接单或结算</div></div>`;}
+      else if(d.kind==='event'){const ev={badminton:['周五一起打羽毛球','周五 18:30—20:00','校体育馆','2人','场地费现场均摊'],boardgame:['周末桌游，新手也欢迎','周六 14:00—16:00','学生活动中心','3人','免费'],photo:['摄影社 · 校园散步','周日 16:00—17:30','图书馆门口集合','6人','免费']}[d.id];main.innerHTML=`<div class="ca-detail"><div class="ca-detail-hero">${icon(d.id==='badminton'?'circle-dot':d.id==='photo'?'camera':'dice-5')}一起出发</div><h3>${ev[0]}</h3><p class="ca-secondary">欢迎同校同学参加，报名后可与组织者确认活动细节。</p><div class="ca-facts"><div><span>时间</span><span>${ev[1]}</span></div><div><span>地点</span><span>${ev[2]}</span></div><div><span>余位</span><span>${ev[3]}</span></div><div><span>费用</span><span>${ev[4]}</span></div></div><button class="ca-primary" data-action="join">${state.joined?'已报名 · 查看安排':'报名参加'}</button><div class="ca-caption">演示活动，不会产生真实报名</div></div>`;}
+      else if(d.kind==='publish'){const name=state.service==='market'?'闲置':state.service==='errands'?'跑腿':'活动';main.innerHTML=`<form class="ca-detail" data-publish-form><label class="ca-field">${name}标题<input required maxlength="50" placeholder="${state.service==='market'?'例如：闲置台灯，正常使用':state.service==='errands'?'例如：帮取一个小件快递':'例如：周末一起打羽毛球'}"></label><label class="ca-field">详细说明<textarea required placeholder="写清物品情况、时间或其他要求"></textarea></label><label class="ca-field">${state.service==='events'?'活动地点':'交接地点'}<input required placeholder="选择校内公共地点"></label><button class="ca-primary" type="submit">保存演示草稿</button><div class="ca-caption">演示表单，内容不上传</div></form>`;}
+      else if(d.kind==='import'){main.innerHTML=`<div class="ca-detail"><h3>导入你的课表</h3><p class="ca-secondary">选择课表截图或文件，识别后核对课程、周次和时间。</p><div class="ca-menu"><button data-action="pickfile">${icon('image')}<span>从截图导入</span>${icon('chevron-right')}</button><button data-action="pickfile">${icon('file-spreadsheet')}<span>从文件导入</span>${icon('chevron-right')}</button><button data-action="manual">${icon('pencil')}<span>手动添加课程</span>${icon('chevron-right')}</button></div><div class="ca-caption">此界面为流程示意，尚未接入识别服务</div></div>`;}
+      else if(d.kind==='chat'){main.innerHTML=`<div class="ca-block ca-secondary">正在咨询：高等数学 · 第七版 上册</div><div class="ca-chat"><span class="ca-avatar">林</span><div class="ca-bubble">教材还在，今晚可以在图书馆门口面交。</div></div><div data-chat-history></div><form class="ca-detail" data-chat-form><label class="ca-field">回复<input required maxlength="200" placeholder="询问物品或约交接时间"></label><button class="ca-primary" type="submit">发送演示消息</button></form><div class="ca-caption">消息仅保留在当前演示页面</div>`;}
+      else if(d.kind==='campus'){main.innerHTML=`<div class="ca-section">示例大学</div><div class="ca-menu">${['东校区','西校区'].map(c=>`<button data-campus="${c}">${icon('map-pin')}<span>${c}</span>${state.campus===c?icon('check'):icon('chevron-right')}</button>`).join('')}</div><div class="ca-caption">示例校区，用于查看切换效果</div>`;}
+      else if(d.kind==='settings'){main.innerHTML=`<div class="ca-detail"><label class="ca-field">字号<select data-font><option value="16" ${design.font===16?'selected':''}>标准 · 16</option><option value="18" ${design.font===18?'selected':''}>较大 · 18</option></select></label><div class="ca-facts"><div><span>课表可见范围</span><span>仅自己</span></div><div><span>版本</span><span>界面演示 v0.1</span></div></div></div>`;}
+      else {main.innerHTML=`<div class="ca-block"><div class="ca-name">${d.title}</div><p class="ca-secondary">${d.text}</p></div>`;}
+    }
+    function render(){root.querySelectorAll('[data-nav]').forEach(b=>{if(b.closest('.ca-nav')){if(b.dataset.nav===state.page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}});if(state.detail)detail();else({campus,schedule,messages,me}[state.page])();icons();}
+    root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root.contains(b))return;
+      if(b.type==='submit'&&b.closest('form')){e.preventDefault();const form=b.closest('form');if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return;}
+      if(b.dataset.nav){state.page=b.dataset.nav;state.detail=null;render();return;}
+      if(b.dataset.service){state.service=b.dataset.service;state.filter='全部';render();return;}
+      if(b.dataset.filter){state.filter=b.dataset.filter;render();return;}
+      if(b.dataset.day){state.day=Number(b.dataset.day);render();return;}
+      if(b.dataset.product){state.detail={kind:'product',id:b.dataset.product,title:'物品详情'};render();return;}
+      if(b.dataset.run){state.detail={kind:'run',id:b.dataset.run,title:'跑腿详情'};render();return;}
+      if(b.dataset.event){state.detail={kind:'event',id:b.dataset.event,title:'活动详情'};render();return;}
+      if(b.dataset.course){state.detail={kind:'info',title:b.dataset.course,text:'示例课程 · 第1—16周。正式版本可在这里修改时间、地点、周次与提醒。'};render();return;}
+      if(b.dataset.campus){state.campus=b.dataset.campus;state.detail=null;render();toast('已切换示例校区');return;}
+      const a=b.dataset.action;
+      if(a==='back'){state.detail=null;render();return;}
+      if(a==='explore'){state.page='campus';state.service='events';state.filter='全部';render();return;}
+      if(a==='accept'){state.accepted=true;render();toast('已演示接单状态，没有实际订单');return;}
+      if(a==='join'){state.joined=true;render();toast('已演示报名状态，没有提交真实报名');return;}
+      if(a==='pickfile'){toast('这里将选择本机课表；当前演示不读取文件');return;}
+      const dialogs={publish:{kind:'publish',title:state.service==='market'?'发布闲置':state.service==='errands'?'发布跑腿':'发布活动'},import:{kind:'import',title:'导入课表'},chat:{kind:'chat',title:'小林'},campus:{kind:'campus',title:'切换校区'},settings:{kind:'settings',title:'设置'},notice:{kind:'info',title:'服务通知',text:'你关注的羽毛球活动将于周五18:30开始，地点为校体育馆。此通知为演示内容。'},runstatus:{kind:'info',title:'我的跑腿订单',text:state.accepted?'演示订单已接单。正式版本在这里查看取件、交付、取消与申诉进度。':'暂无进行中的演示订单。正式版本在这里查看订单状态与处理进度。'},myposts:{kind:'info',title:'我的发布',text:'暂时没有发布。回到校园，点击右上角加号，即可体验发布流程。'},myevents:{kind:'info',title:'我的活动',text:state.joined?'已演示报名。实际活动报名将在正式版本中保存。':'暂无报名活动，可以到校园活动页看看。'},favorites:{kind:'info',title:'我的收藏',text:'暂无收藏。正式版本支持收藏商品与活动，方便之后查找。'},runner:{kind:'info',title:'成为接单同学',text:'确认校区、可服务时段与服务要求，提交接单申请。审核后可开启接单；当前为申请入口示意。'},help:{kind:'info',title:'帮助与反馈',text:'正式版本提供问题描述、图片凭证及关联订单，运营人员可以在后台跟进处理。'},manual:{kind:'info',title:'添加课程',text:'正式版本可填写课程、教室、星期、节次和单双周，并核对是否与现有课程冲突。'}};
+      if(dialogs[a]){state.detail=dialogs[a];render();}
+    });
+    root.addEventListener('input',e=>{if(!e.target.matches('[data-search]'))return;const q=e.target.value.trim().toLowerCase();main.querySelectorAll('.ca-item').forEach(row=>{row.hidden=!row.textContent.toLowerCase().includes(q);row.style.display=row.hidden?'none':'';});});
+    root.addEventListener('change',e=>{if(e.target.matches('[data-font]')){design.font=Number(e.target.value);applyDesign();}});
+    root.addEventListener('submit',e=>{e.preventDefault();if(e.target.matches('[data-publish-form]')){toast('演示草稿已确认，内容未上传');}if(e.target.matches('[data-chat-form]')){const input=e.target.querySelector('input');const row=document.createElement('div');row.className='ca-chat mine';const bubble=document.createElement('div');bubble.className='ca-bubble';bubble.textContent=input.value;row.appendChild(bubble);main.querySelector('[data-chat-history]').appendChild(row);input.value='';toast('演示消息已显示，未发送给任何人');}});
+    function applyDesign(){root.style.setProperty('--ca-font',design.font+'px');root.style.setProperty('--ca-radius',design.radius+'px');root.style.setProperty('--ca-accent',design.accent==='青绿'?'light-dark(#07855d,#54d6a5)':'light-dark(#286ab1,#8fc3ff)');root.style.setProperty('--ca-soft',design.accent==='青绿'?'light-dark(#eaf6f0,#203e32)':'light-dark(#eaf1fa,#21354d)');}
+    applyDesign();render();
+    if(globalThis.Tweak){const tweak=new globalThis.Tweak({container:root,onChange:applyDesign});tweak.addSlider(design,'font',{label:'正文字号',min:15,max:18,step:1,unit:'px'});tweak.addSelect(design,'accent',{label:'强调色',options:['青绿','蓝色']});tweak.addSlider(design,'radius',{label:'圆角',min:6,max:14,step:2,unit:'px'});}
+  })();
+  </script>
+</div>

@@ -1,0 +1,412 @@
+CampusResponse:
+  type: object
+  required: [code, message, traceId]
+  additionalProperties: false
+  properties:
+    code:
+      type: integer
+      description: 业务码，0 表示成功；其余取值见 campus-error-codes.csv
+      example: 0
+    message:
+      type: string
+      description: 用户可阅读的提示；成功时为空字符串
+      example: ""
+    data:
+      description: 业务数据；错误时为 CampusErrorDetail
+    traceId:
+      type: string
+      description: 链路追踪编号，成功与失败都必须非空
+      example: 3a513e8f2123fd3e87f82803508c2bce
+
+CampusErrorResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/CampusErrorDetail"
+
+CampusErrorDetail:
+  type: object
+  additionalProperties: false
+  required: [retryable, requiredAction]
+  properties:
+    retryable:
+      type: boolean
+      description: 是否允许原样重试
+    requiredAction:
+      type: string
+      enum: [RETRY, USER_FIX, OPERATOR]
+      description: RETRY 原样重试；USER_FIX 用户修正或刷新版本；OPERATOR 需运营处理
+    fieldErrors:
+      type: array
+      description: 参数错误明细；只回显字段名与原因
+      items:
+        $ref: "#/CampusFieldError"
+    currentVersion:
+      type: string
+      description: 409 冲突时的当前版本
+    currentState:
+      type: string
+      description: 409 冲突时的当前状态
+
+CampusFieldError:
+  type: object
+  additionalProperties: false
+  required: [field, reason]
+  properties:
+    field:
+      type: string
+      example: amountFen
+    reason:
+      type: string
+      example: 金额必须使用整数分
+
+CampusId:
+  type: string
+  minLength: 1
+  description: |
+    标识字段在 JSON 中恒为字符串，避免 JavaScript 安全整数（2^53-1）溢出。
+    后端公开 DTO 使用 String 并以 `@CampusIdString` 拒绝 JSON 数字；具体 ID 词法由各业务字段定义。
+  example: "9007199254740993"
+
+MoneyFen:
+  type: integer
+  format: int64
+  description: |
+    金额，单位整数分（CNY_FEN）。禁止小数、禁止字符串、禁止以元为单位。
+    小数会在反序列化阶段失败并返回 400 `CAMPUS_MONEY_FORMAT_INVALID`。
+  example: 1234
+
+CampusTimestamp:
+  type: string
+  format: date-time
+  description: |
+    RFC 3339 时间且必须带时区偏移；epoch 数字与无偏移的本地时间都会被拒绝。
+    后端以 `@CampusTimestamp` 保证输出格式（上游全局 Jackson 开关会把时间输出成 epoch 数字）。
+  example: "2026-09-17T10:15:30+08:00"
+
+CampusPageParam:
+  type: object
+  additionalProperties: false
+  properties:
+    pageNo:
+      type: integer
+      minimum: 1
+      default: 1
+      description: 页码，从 1 开始
+    pageSize:
+      type: integer
+      minimum: 1
+      maximum: 100
+      default: 20
+      description: 每页条数；硬上限 100，超过返回 400 `CAMPUS_PAGE_SIZE_EXCEEDED`
+
+CampusPageResult:
+  type: object
+  additionalProperties: false
+  required: [list, total, pageNo, pageSize]
+  properties:
+    list:
+      type: array
+      items: {}
+    total:
+      type: integer
+      format: int64
+      description: 总数；调用方不得用 list 长度推断
+    pageNo:
+      type: integer
+    pageSize:
+      type: integer
+
+CampusReadiness:
+  type: object
+  additionalProperties: false
+  required: [status]
+  properties:
+    status:
+      type: string
+      enum: [UP, DOWN]
+      description: 只有数据库与缓存都明确可用时才为 UP
+
+CampusReadinessResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/CampusReadiness"
+
+WechatLoginRequest:
+  type: object
+  additionalProperties: false
+  required: [code]
+  properties:
+    code:
+      type: string
+      minLength: 1
+      maxLength: 1024
+      description: uni.login 返回的一次性 code；服务端绝不把它写入普通日志或业务表。
+    clientContext:
+      type: object
+      additionalProperties:
+        type: string
+        maxLength: 256
+      maxProperties: 16
+      description: 仅 UI/诊断上下文，例如 campusId；不参与 appId、openid 或授权范围判定。
+
+WechatLogin:
+  type: object
+  additionalProperties: false
+  required: [accessToken, expiresAt, userId, profileCompletion]
+  properties:
+    accessToken:
+      type: string
+      minLength: 1
+      description: MEMBER 受众访问令牌。请仅以 Authorization Bearer 发送，勿记录或展示。
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+    userId:
+      $ref: "#/CampusId"
+    profileCompletion:
+      type: boolean
+
+WechatLoginResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/WechatLogin"
+
+VerificationMethod:
+  type: string
+  enum: [STUDENT_CARD]
+  description: 当前可提交的认证方式。未列出的方法会在请求解析阶段被拒绝。
+
+SubmitVerificationRequest:
+  type: object
+  additionalProperties: false
+  required: [schoolId, campusId, method, evidenceRefs]
+  properties:
+    schoolId:
+      $ref: "#/CampusId"
+    campusId:
+      $ref: "#/CampusId"
+    method:
+      $ref: "#/VerificationMethod"
+    evidenceRefs:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: 媒体域签发的 opaque media ID；必须是 JSON 字符串，不能是原始材料 URL。
+      items:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: "^(?!.*://).+$"
+
+VerificationApplication:
+  type: object
+  additionalProperties: false
+  required: [applicationId, status, version]
+  properties:
+    applicationId:
+      $ref: "#/CampusId"
+    status:
+      type: string
+      enum: [PENDING]
+    version:
+      type: integer
+      format: int64
+      minimum: 1
+
+VerificationApplicationResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/VerificationApplication"
+
+Membership:
+  type: object
+  additionalProperties: false
+  required: [effective, expiresAt, scopeVersion]
+  properties:
+    effective:
+      type: boolean
+      const: true
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+    scopeVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+MembershipResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/Membership"
+
+ReviewDecision:
+  type: string
+  enum: [APPROVE, REJECT]
+
+ReviewVerificationRequest:
+  type: object
+  additionalProperties: false
+  required: [decision, reason, expectedVersion]
+  properties:
+    decision:
+      $ref: "#/ReviewDecision"
+    reason:
+      type: string
+      minLength: 1
+      maxLength: 500
+    expectedVersion:
+      type: integer
+      format: int64
+      minimum: 1
+
+VerificationReview:
+  type: object
+  additionalProperties: false
+  required: [applicationId, status, version]
+  properties:
+    applicationId:
+      $ref: "#/CampusId"
+    status:
+      type: string
+      enum: [APPROVED, REJECTED]
+    version:
+      type: integer
+      format: int64
+      minimum: 2
+    membershipId:
+      oneOf:
+        - $ref: "#/CampusId"
+        - type: "null"
+    scopeVersion:
+      type: [integer, "null"]
+      format: int64
+      minimum: 1
+
+VerificationReviewResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/VerificationReview"
+
+CampusPublic:
+  type: object
+  additionalProperties: false
+  required: [schoolId, campusId, name, timezone, status, configVersion]
+  properties:
+    schoolId:
+      $ref: "#/CampusId"
+    campusId:
+      $ref: "#/CampusId"
+    name:
+      type: string
+    timezone:
+      type: string
+      description: IANA timezone, for example Asia/Shanghai.
+    status:
+      type: string
+      enum: [ENABLED]
+    configVersion:
+      type: string
+      description: Server-owned configuration version used for cache invalidation.
+
+SchoolPublic:
+  type: object
+  additionalProperties: false
+  required: [schoolId, name, timezone, status, configVersion, campuses]
+  properties:
+    schoolId:
+      $ref: "#/CampusId"
+    name:
+      type: string
+    timezone:
+      type: string
+    status:
+      type: string
+      enum: [ENABLED]
+    configVersion:
+      type: string
+    campuses:
+      type: array
+      items:
+        $ref: "#/CampusPublic"
+
+SchoolDirectory:
+  type: object
+  additionalProperties: false
+  required: [items]
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/SchoolPublic"
+    nextCursor:
+      type: [string, "null"]
+      description: Opaque cursor for the next page, or null when exhausted.
+
+SchoolDirectoryResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/SchoolDirectory"
+
+CampusContextUpdateRequest:
+  type: object
+  additionalProperties: false
+  required: [schoolId, campusId]
+  properties:
+    schoolId:
+      $ref: "#/CampusId"
+    campusId:
+      $ref: "#/CampusId"
+
+CampusBrowseContext:
+  type: object
+  additionalProperties: false
+  required: [loggedIn, browseMode]
+  properties:
+    loggedIn:
+      type: boolean
+    browseMode:
+      type: string
+      enum: [PUBLIC]
+    school:
+      oneOf:
+        - $ref: "#/SchoolPublic"
+        - type: "null"
+    campus:
+      oneOf:
+        - $ref: "#/CampusPublic"
+        - type: "null"
+
+CampusContextResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/CampusBrowseContext"

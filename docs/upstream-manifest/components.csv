@@ -1,0 +1,8 @@
+component,official_url,branch,commit_or_version,license,local_path,status,notes
+ruoyi-vue-pro,https://github.com/YunaiV/ruoyi-vue-pro.git,master-jdk17,8e43004cf68a405cd3485f98f8a539b97ca6544a,MIT,backend,verified_local,"24-module build and local/prod startup passed; local patches documented"
+yudao-ui-admin-vue3,https://github.com/yudaocode/yudao-ui-admin-vue3.git,master,aab14fb0e74720dd09e964ae066f8bbde9f9012e,MIT,apps/admin,deferred_ui,"UI implementation assigned elsewhere; commit is a recorded candidate, not an accepted build"
+unibest,https://github.com/feige996/unibest.git,base,dc3af8ddb99b78fa806078c80434b664a4b1ce93,MIT,apps/student,deferred_ui,"UI implementation assigned elsewhere; commit is a recorded candidate, not an accepted build"
+mysql,https://hub.docker.com/_/mysql,8.4,8.4.11@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a,service terms,deploy/dev/compose.yaml,runtime_verified_local,"Healthy; TCP application login and 59-table baseline import passed"
+valkey,https://hub.docker.com/r/valkey/valkey,8.1,8.1.10-alpine@sha256:d2e18f3410b6f616de1417f570fa55261af2898b9c5b2cfb6781ce2373ea43d1,BSD-3-Clause,deploy/dev/compose.yaml,runtime_verified_local,"Auth/read-write plus Redisson 4.7 TTL/Lua/distributed-lock compatibility passed"
+eclipse-temurin,https://api.adoptium.net/v3/assets/latest/17/hotspot,,17.0.20.1+1,OpenJDK terms,../.tools/temurin-17.0.20.1,verified_download,"SHA-256 e53a79c3c3d86865bd7e787903884331068e71321714ffd44f145785affc7cb0"
+apache-maven,https://downloads.apache.org/maven/maven-3/3.9.16/binaries/,,3.9.16,Apache-2.0,../.tools/apache-maven-3.9.16,verified_download,"SHA-512 ed41650d42485cfc243fad22158caf9cbb5dc408ce7a09ddb94dd42a019de929ca43065bfa450612cf12bf78b5cafa3884b96c090de326ff590448c933454af3"

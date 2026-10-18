@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>cn.iocoder.boot</groupId>
+        <artifactId>yudao</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>campus-common</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>
+        校园助手自有公共底座（M00 工程底座）。
+        当前承载 M00.01 的启动配置校验与就绪检查；后续 M00.02 契约、M00.04 幂等、M00.05 outbox
+        按各自设计追加包，不能把业务规则放进本模块。
+    </description>
+
+    <dependencies>
+        <!--
+            M00.03：Flyway 是数据库结构的唯一执行器。SQL 源文件仍只位于仓库根
+            database/migrations；下面的 resources 配置会把它们复制到发布 JAR，避免运行时依赖 cwd。
+        -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+        <!-- TransactionExecutor 复用上游已锁定的 Spring JDBC / 事务基础设施。 -->
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>yudao-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+
+        <!-- 统一响应、异常与 Web 能力（CommonResult、@PermitAll 所在的 security 等） -->
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>yudao-spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>yudao-spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- 就绪检查需要探测缓存连接 -->
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>yudao-spring-boot-starter-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>yudao-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <!-- 保留模块自身今后可能新增的配置资源。 -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- database/migrations 是 SQL 唯一源码入口；这里只在构建阶段打包副本。 -->
+            <resource>
+                <directory>${project.basedir}/../../database/migrations</directory>
+                <targetPath>db/migration</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>V*__*.sql</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+</project>

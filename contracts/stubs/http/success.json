@@ -1,0 +1,26 @@
+{
+  "scenario": "SUCCESS",
+  "contractVersion": "2026.08-campus.1",
+  "httpStatus": 200,
+  "headers": {
+    "X-Trace-Id": "3a513e8f2123fd3e87f82803508c2bce",
+    "Content-Type": "application/json;charset=UTF-8"
+  },
+  "body": {
+    "code": 0,
+    "message": "",
+    "data": {
+      "id": "9007199254740993",
+      "schoolId": "S1",
+      "amountFen": 1234,
+      "expectedAt": "2026-09-17T10:15:30+08:00"
+    },
+    "traceId": "3a513e8f2123fd3e87f82803508c2bce"
+  },
+  "assertions": [
+    "data.id 是字符串且原样返回（大编号不丢精度）",
+    "data.amountFen 是整数分，不是元、不是字符串",
+    "data.expectedAt 带时区偏移",
+    "traceId 与响应头 X-Trace-Id 一致且非空"
+  ]
+}

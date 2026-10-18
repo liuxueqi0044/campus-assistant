@@ -1,0 +1,3 @@
+# M00.01 启动配置校验：必须在配置数据加载完成后、依赖初始化之前运行
+org.springframework.boot.env.EnvironmentPostProcessor=\
+cn.iocoder.yudao.module.campus.common.baseline.CampusStartupConfigurationGuard

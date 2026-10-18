@@ -1,0 +1,42 @@
+{
+  "scenario": "OUT_OF_ORDER",
+  "contractVersion": "2026.08-campus.1",
+  "deliveries": [
+    {
+      "attempt": 1,
+      "envelope": {
+        "eventId": "evt-2026-09-17-0002",
+        "type": "campus.order.accepted",
+        "version": 1,
+        "aggregateId": "9007199254740993",
+        "aggregateVersion": 2,
+        "schoolId": "S1",
+        "occurredAt": "2026-09-17T10:20:00+08:00",
+        "payload": {
+          "runnerId": "R1"
+        }
+      }
+    },
+    {
+      "attempt": 2,
+      "note": "聚合版本更旧的事件后到",
+      "envelope": {
+        "eventId": "evt-2026-09-17-0003",
+        "type": "campus.order.paid",
+        "version": 1,
+        "aggregateId": "9007199254740993",
+        "aggregateVersion": 1,
+        "schoolId": "S1",
+        "occurredAt": "2026-09-17T10:10:00+08:00",
+        "payload": {
+          "amountFen": 1234
+        }
+      }
+    }
+  ],
+  "assertions": [
+    "消费者按 aggregateVersion 判定，不允许把状态回退到更旧版本",
+    "乱序事件必须留下可观察记录，不能静默丢弃",
+    "缓存广播只是加速提示，不作为状态事实来源"
+  ]
+}

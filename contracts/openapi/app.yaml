@@ -1,0 +1,304 @@
+openapi: 3.1.0
+info:
+  title: 校园助手 学生端 API
+  version: 2026.08-campus.1
+  license:
+    name: MIT
+    identifier: MIT
+  description: |
+    学生端（小程序）与后端之间的 HTTP 契约。
+
+    本文件在 M00.02 冻结公共协议：入口前缀、统一响应信封、错误码、分页、ID／金额／时间类型规则。
+    M01–M11 追加业务路径时必须复用 `./components/schemas.yaml` 与 `./components/responses.yaml` 中的定义，
+    不得自行定义第二套信封或金额类型。
+
+    上游 system／infra 等既有接口保持 yudao 原有信封，不在本契约内。
+servers:
+  - url: /
+    description: 与网关同源；学生端路径统一以 /app-api/campus/v1 开头
+tags:
+  - name: ops
+    description: 运维探针（M00.01）
+  - name: campus-context
+    description: 学校/校区公开目录与浏览上下文（M01.02）
+  - name: identity
+    description: 微信登录与学生身份绑定（M01.01）
+  - name: membership-verification
+    description: 成员认证提交与当前成员资格检查（M01.03）
+security:
+  - bearerAuth: []
+paths:
+  /app-api/campus/v1/verifications:
+    post:
+      operationId: submitMembershipVerification
+      tags: [membership-verification]
+      summary: 提交校园身份认证
+      description: |
+        只接受当前已登录学生本人提交的、由媒体域管理的 opaque media ID。不得提交证件内容、原始材料 URL
+        或 userId；认证方法必须是当前契约枚举值。相同 Idempotency-Key 与相同请求可安全重试。
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/SubmitVerificationRequest"
+      responses:
+        "200":
+          description: 已创建申请或返回同一幂等请求的既有结果
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/VerificationApplicationResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+  /app-api/campus/v1/membership:
+    get:
+      operationId: checkCurrentMembership
+      tags: [membership-verification]
+      summary: 检查当前用户的校园成员资格
+      description: |
+        服务端固定执行 SELF_CHECK；客户端不能传入或选择授权 action。检查只针对当前登录用户，
+        schoolId 与 campusId 必须是十进制正整数字符串。
+      parameters:
+        - name: schoolId
+          in: query
+          required: true
+          schema:
+            $ref: "./components/schemas.yaml#/CampusId"
+        - name: campusId
+          in: query
+          required: true
+          schema:
+            $ref: "./components/schemas.yaml#/CampusId"
+      responses:
+        "200":
+          description: 当前成员资格有效
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/MembershipResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+  /app-api/campus/v1/auth/wechat/login:
+    post:
+      operationId: loginWithWechatMiniApp
+      tags: [identity]
+      summary: 使用微信小程序 code 登录
+      description: |
+        服务端以已登记的 wx.miniapp 配置交换一次性 code；客户端不得提供或选择 appId、openid、unionid。
+        成功后只签发 MEMBER 受众的 accessToken，响应不会包含 refreshToken、openid、session_key 或渠道 token。
+        退出使用本契约中的 `/auth/logout` 包装，服务端委托上游 member token 撤销协议；本校园响应不扩展刷新协议。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/WechatLoginRequest"
+      responses:
+        "200":
+          description: 登录成功
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/WechatLoginResponse"
+        "400":
+          description: 请求不合法或 WECHAT_CODE_INVALID
+          $ref: "./components/responses.yaml#/BadRequest"
+        "403":
+          description: ACCOUNT_DISABLED
+          $ref: "./components/responses.yaml#/Forbidden"
+        "409":
+          description: IDENTITY_BINDING_CONFLICT（不自动合并账户）
+          $ref: "./components/responses.yaml#/Conflict"
+        "503":
+          description: IDENTITY_PROVIDER_UNAVAILABLE
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusErrorResponse"
+  /app-api/campus/v1/auth/logout:
+    post:
+      operationId: logoutCampusMember
+      tags: [identity]
+      summary: 退出校园学生端会话
+      description: |
+        从 Bearer Token 读取当前会话并委托上游 member Token 撤销与审计。缺失、过期或已撤销 token
+        都返回幂等成功；该接口绝不接受前端传入 userId，也不返回任何 token 材料。
+      security: []
+      responses:
+        "200":
+          description: 已请求退出；data 恒为 true
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "./components/schemas.yaml#/CampusResponse"
+                  - type: object
+                    required: [data]
+                    properties:
+                      data:
+                        type: boolean
+  /app-api/campus/v1/schools:
+    get:
+      operationId: listPublicSchools
+      tags: [campus-context]
+      summary: 获取启用的学校/校区公开目录
+      description: |
+        仅返回启用的学校和校区。分页使用不透明且稳定的 keyset cursor；不能从 cursor 推导或修改
+        server-side tenant/data scope。响应不含运营联系人、membership、角色或任何个人资料。
+      security: []
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 160
+        - name: cursor
+          in: query
+          required: false
+          description: 上一页返回的 nextCursor；首次请求省略。
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 公开目录
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/SchoolDirectoryResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+  /app-api/campus/v1/context:
+    get:
+      operationId: getCampusBrowseContext
+      tags: [campus-context]
+      summary: 获取公开浏览上下文
+      description: |
+        匿名请求只获得公共字段。携带有效 Bearer Token 时，可返回该用户独立保存的浏览偏好；
+        它绝不表示 membership、认证、角色或任何私有资源权限。
+      security: []
+      responses:
+        "200":
+          description: 浏览上下文
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusContextResponse"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+    put:
+      operationId: updateCampusBrowseContext
+      tags: [campus-context]
+      summary: 校验并更新浏览校区
+      description: |
+        校验 campus 属于 school 且二者启用。匿名请求只返回已验证上下文而不持久化；
+        已登录用户只更新独立 browse preference，绝不改变 membership、role 或组织权限。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/CampusContextUpdateRequest"
+      responses:
+        "200":
+          description: 已验证的浏览上下文
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusContextResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+  /health/readiness:
+    get:
+      operationId: getCampusReadiness
+      tags: [ops]
+      summary: 就绪探针
+      description: |
+        只有数据库与缓存都明确 UP 时才返回 UP。
+        对外只暴露聚合状态，不返回依赖地址、版本、异常原因或当前 profile。
+      security: []
+      responses:
+        "200":
+          description: 就绪状态
+          headers:
+            X-Trace-Id:
+              $ref: "./components/headers.yaml#/X-Trace-Id"
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/CampusReadinessResponse"
+              examples:
+                up:
+                  $ref: "./examples/campus-response-success.json"
+        "500":
+          $ref: "./components/responses.yaml#/InternalError"
+x-campus-conventions:
+  contractVersion: 2026.08-campus.1
+  errorCodeRegistry: ./campus-error-codes.csv
+  identifiers: JSON 中恒为字符串（公开 DTO 使用 String + @CampusIdString，数字 token 返回 400）
+  money: 整数分 CNY_FEN（后端以 MoneyFen 保证，小数与字符串一律 400）
+  timestamp: RFC 3339 且带偏移（后端以 @CampusTimestamp 保证）
+  pagination: pageNo 默认 1，pageSize 默认 20，硬上限 100
+  idempotency: 敏感写请求带 Idempotency-Key，必要时请求体带 expectedVersion
+  retryHints: 错误 data.requiredAction 取 RETRY / USER_FIX / OPERATOR
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: "./components/security-schemes.yaml#/bearerAuth"

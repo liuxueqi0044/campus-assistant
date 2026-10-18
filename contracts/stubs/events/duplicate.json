@@ -1,0 +1,45 @@
+{
+  "scenario": "DUPLICATE",
+  "contractVersion": "2026.08-campus.1",
+  "deliveries": [
+    {
+      "attempt": 1,
+      "envelope": {
+        "eventId": "evt-2026-09-17-0001",
+        "type": "campus.order.created",
+        "version": 1,
+        "aggregateId": "9007199254740993",
+        "aggregateVersion": 1,
+        "schoolId": "S1",
+        "occurredAt": "2026-09-17T10:15:30+08:00",
+        "traceId": "3a513e8f2123fd3e87f82803508c2bce",
+        "payload": {
+          "orderId": "9007199254740993",
+          "amountFen": 1234
+        }
+      }
+    },
+    {
+      "attempt": 2,
+      "note": "同一 eventId 再次投递",
+      "envelope": {
+        "eventId": "evt-2026-09-17-0001",
+        "type": "campus.order.created",
+        "version": 1,
+        "aggregateId": "9007199254740993",
+        "aggregateVersion": 1,
+        "schoolId": "S1",
+        "occurredAt": "2026-09-17T10:15:30+08:00",
+        "traceId": "3a513e8f2123fd3e87f82803508c2bce",
+        "payload": {
+          "orderId": "9007199254740993",
+          "amountFen": 1234
+        }
+      }
+    }
+  ],
+  "assertions": [
+    "同一 (consumer, eventId) 只允许一次内部效果",
+    "重复投递不得重复通知或重复记账"
+  ]
+}

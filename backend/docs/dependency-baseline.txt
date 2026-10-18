@@ -1,0 +1,292 @@
+
+The following files have been resolved:
+   cn.iocoder.boot:yudao-module-system:jar:2026.08-campus.1:compile -- module yudao.module.system (auto)
+   cn.iocoder.boot:yudao-spring-boot-starter-biz-data-permission:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.biz.data.permission (auto)
+   cn.iocoder.boot:yudao-common:jar:2026.08-campus.1:compile -- module yudao.common (auto)
+   io.opentelemetry:opentelemetry-api:jar:1.65.0:compile -- module io.opentelemetry.api [auto]
+   io.opentelemetry:opentelemetry-context:jar:1.49.0:compile -- module io.opentelemetry.context [auto]
+   org.mapstruct:mapstruct:jar:1.6.3:compile -- module org.mapstruct [auto]
+   org.mapstruct:mapstruct-jdk8:jar:1.6.3:compile -- module mapstruct.jdk8 (auto)
+   org.mapstruct:mapstruct-processor:jar:1.6.3:compile -- module org.mapstruct.processor [auto]
+   cn.hutool:hutool-all:jar:5.8.47:compile -- module cn.hutool [auto]
+   com.alibaba:transmittable-thread-local:jar:2.14.5:compile -- module transmittable.thread.local (auto)
+   com.alibaba:fastjson:jar:2.0.64:compile -- module fastjson (auto)
+   com.alibaba.fastjson2:fastjson2-extension:jar:2.0.64:compile -- module com.alibaba.fastjson2.extension
+   com.alibaba.fastjson2:fastjson2:jar:2.0.64:compile -- module com.alibaba.fastjson2
+   org.dromara:easy-trans-anno:jar:3.1.8:compile -- module easy.trans.anno (auto)
+   cn.iocoder.boot:yudao-spring-boot-starter-biz-tenant:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.biz.tenant (auto)
+   com.google.guava:guava:jar:33.7.1-jre:compile -- module com.google.common
+   com.google.guava:failureaccess:jar:1.0.3:compile -- module com.google.common.util.concurrent.internal
+   com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile -- module listenablefuture (auto)
+   org.jspecify:jspecify:jar:1.0.0:compile -- module org.jspecify
+   com.google.errorprone:error_prone_annotations:jar:2.50.0:compile -- module com.google.errorprone.annotations
+   com.google.j2objc:j2objc-annotations:jar:3.1:compile -- module com.google.j2objc.annotations
+   cn.iocoder.boot:yudao-spring-boot-starter-biz-ip:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.biz.ip (auto)
+   org.lionsoul:ip2region:jar:2.7.0:compile -- module ip2region (auto)
+   org.projectlombok:lombok:jar:1.18.46:compile -- module lombok
+   cn.iocoder.boot:yudao-spring-boot-starter-security:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.security (auto)
+   org.springframework.boot:spring-boot-starter-aop:jar:3.5.15:compile -- module spring.boot.starter.aop [auto]
+   org.springframework:spring-aop:jar:6.2.19:compile -- module spring.aop [auto]
+   org.aspectj:aspectjweaver:jar:1.9.25.1:compile -- module org.aspectj.weaver [auto]
+   org.springframework.boot:spring-boot-starter-security:jar:3.5.15:compile -- module spring.boot.starter.security [auto]
+   org.springframework.security:spring-security-config:jar:6.5.11:compile -- module spring.security.config [auto]
+   org.springframework.security:spring-security-core:jar:6.5.11:compile -- module spring.security.core [auto]
+   org.springframework.security:spring-security-crypto:jar:6.5.11:compile -- module spring.security.crypto [auto]
+   org.springframework.security:spring-security-web:jar:6.5.11:compile -- module spring.security.web [auto]
+   org.springframework:spring-expression:jar:6.2.19:compile -- module spring.expression [auto]
+   io.github.mouzt:bizlog-sdk:jar:3.0.6:compile -- module bizlog.sdk (auto)
+   de.danielbechler:java-object-diff:jar:0.95:compile -- module java.object.diff (auto)
+   com.google.code.findbugs:annotations:jar:3.0.1:compile -- module annotations (auto)
+   net.jcip:jcip-annotations:jar:1.0:compile -- module jcip.annotations (auto)
+   com.google.code.findbugs:jsr305:jar:3.0.1:compile -- module jsr305 (auto)
+   org.springframework.boot:spring-boot-starter-validation:jar:3.5.15:compile -- module spring.boot.starter.validation [auto]
+   org.springframework.boot:spring-boot-starter:jar:3.5.15:compile -- module spring.boot.starter [auto]
+   org.springframework.boot:spring-boot:jar:3.5.15:compile -- module spring.boot [auto]
+   org.springframework.boot:spring-boot-starter-logging:jar:3.5.15:compile -- module spring.boot.starter.logging [auto]
+   ch.qos.logback:logback-classic:jar:1.5.34:compile -- module ch.qos.logback.classic
+   ch.qos.logback:logback-core:jar:1.5.34:compile -- module ch.qos.logback.core
+   org.apache.logging.log4j:log4j-to-slf4j:jar:2.24.3:compile -- module org.apache.logging.log4j.to.slf4j
+   org.slf4j:jul-to-slf4j:jar:2.0.18:compile -- module jul.to.slf4j
+   jakarta.annotation:jakarta.annotation-api:jar:2.1.1:compile -- module jakarta.annotation
+   org.springframework:spring-core:jar:6.2.19:compile -- module spring.core [auto]
+   org.springframework:spring-jcl:jar:6.2.19:compile -- module spring.jcl [auto]
+   org.yaml:snakeyaml:jar:2.4:compile -- module org.yaml.snakeyaml
+   org.apache.tomcat.embed:tomcat-embed-el:jar:10.1.55:compile -- module org.apache.tomcat.embed.el
+   org.hibernate.validator:hibernate-validator:jar:8.0.3.Final:compile -- module org.hibernate.validator [auto]
+   org.jboss.logging:jboss-logging:jar:3.6.3.Final:compile -- module org.jboss.logging
+   com.fasterxml:classmate:jar:1.7.3:compile -- module com.fasterxml.classmate
+   cn.iocoder.boot:yudao-spring-boot-starter-mybatis:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.mybatis (auto)
+   com.mysql:mysql-connector-j:jar:9.7.0:compile -- module mysql.connector.j (auto)
+   com.alibaba:druid-spring-boot-3-starter:jar:1.2.28:compile -- module druid.spring.boot3.starter
+   com.alibaba:druid:jar:1.2.28:compile -- module druid (auto)
+   com.baomidou:mybatis-plus-spring-boot3-starter:jar:3.5.17:compile -- module mybatis.plus.spring.boot3.starter (auto)
+   com.baomidou:mybatis-plus:jar:3.5.17:compile -- module mybatis.plus (auto)
+   com.baomidou:mybatis-plus-core:jar:3.5.17:compile -- module mybatis.plus.core (auto)
+   com.baomidou:mybatis-plus-annotation:jar:3.5.17:compile -- module mybatis.plus.annotation (auto)
+   com.baomidou:mybatis-plus-spring:jar:3.5.17:compile -- module mybatis.plus.spring (auto)
+   org.mybatis:mybatis:jar:3.5.19:compile -- module org.mybatis [auto]
+   org.mybatis:mybatis-spring:jar:3.0.5:compile -- module org.mybatis.spring [auto]
+   com.baomidou:mybatis-plus-spring-boot-autoconfigure:jar:3.5.17:compile -- module mybatis.plus.spring.boot.autoconfigure (auto)
+   com.baomidou:mybatis-plus-spring-boot-native-image:jar:3.5.17:compile
+   org.springframework.boot:spring-boot-starter-jdbc:jar:3.5.15:compile -- module spring.boot.starter.jdbc [auto]
+   com.zaxxer:HikariCP:jar:6.3.3:compile -- module com.zaxxer.hikari
+   org.springframework:spring-jdbc:jar:6.2.19:compile -- module spring.jdbc [auto]
+   com.baomidou:mybatis-plus-jsqlparser:jar:3.5.17:compile -- module mybatis.plus.jsqlparser (auto)
+   com.github.jsqlparser:jsqlparser:jar:5.2:compile -- module net.sf.jsqlparser
+   com.baomidou:mybatis-plus-jsqlparser-common:jar:3.5.17:compile -- module mybatis.plus.jsqlparser.common (auto)
+   com.baomidou:mybatis-plus-extension:jar:3.5.17:compile -- module mybatis.plus.extension (auto)
+   com.baomidou:dynamic-datasource-spring-boot3-starter:jar:4.5.0:compile -- module dynamic.datasource.spring.boot3.starter (auto)
+   com.baomidou:dynamic-datasource-spring-boot-common:jar:4.5.0:compile -- module dynamic.datasource.spring.boot.common (auto)
+   com.baomidou:dynamic-datasource-spring:jar:4.5.0:compile -- module dynamic.datasource.spring (auto)
+   com.baomidou:dynamic-datasource-creator:jar:4.5.0:compile -- module dynamic.datasource.creator (auto)
+   com.oracle.database.spring:oracle-spring-boot-starter-ucp:jar:23.4.0:compile -- module oracle.spring.boot.starter.ucp (auto)
+   com.oracle.database.jdbc:ojdbc11:jar:23.7.0.25.01:compile -- module com.oracle.database.jdbc [auto]
+   com.oracle.database.jdbc:ucp:jar:23.7.0.25.01:compile -- module com.oracle.database.ucp [auto]
+   com.github.yulichang:mybatis-plus-join-boot-starter:jar:1.5.9:compile -- module mybatis.plus.join.boot.starter (auto)
+   com.github.yulichang:mybatis-plus-join-extension:jar:1.5.9:compile -- module mybatis.plus.join.extension (auto)
+   com.github.yulichang:mybatis-plus-join-core:jar:1.5.9:compile -- module mybatis.plus.join.core (auto)
+   com.github.yulichang:mybatis-plus-join-annotation:jar:1.5.9:compile -- module mybatis.plus.join.annotation (auto)
+   com.github.yulichang:mybatis-plus-join-adapter-base:jar:1.5.9:compile -- module mybatis.plus.join.adapter.base (auto)
+   com.github.yulichang:mybatis-plus-join-adapter-jsqlparser:jar:1.5.9:compile -- module mybatis.plus.join.adapter.jsqlparser (auto)
+   com.github.yulichang:mybatis-plus-join-wrapper-ext:jar:1.5.9:compile -- module mybatis.plus.join.wrapper.ext (auto)
+   org.dromara:easy-trans-spring-boot-starter:jar:3.1.8:compile -- module easy.trans.spring.boot.starter (auto)
+   org.dromara:easy-trans-service:jar:3.1.8:compile -- module easy.trans.service (auto)
+   net.bytebuddy:byte-buddy:jar:1.17.8:compile -- module net.bytebuddy
+   com.github.ben-manes.caffeine:caffeine:jar:3.2.4:compile -- module com.github.benmanes.caffeine
+   org.dromara:easy-trans-mybatis-plus-extend:jar:3.1.8:compile -- module easy.trans.mybatis.plus.extend (auto)
+   org.springframework:spring-context:jar:6.2.19:compile -- module spring.context [auto]
+   io.micrometer:micrometer-observation:jar:1.15.12:compile -- module micrometer.observation [auto]
+   io.micrometer:micrometer-commons:jar:1.15.12:compile -- module micrometer.commons [auto]
+   cn.iocoder.boot:yudao-spring-boot-starter-redis:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.redis (auto)
+   org.redisson:redisson-spring-boot-starter:jar:4.7.0:compile -- module redisson.spring.boot.starter [auto]
+   org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.15:compile -- module spring.boot.starter.data.redis [auto]
+   org.redisson:redisson:jar:4.7.0:compile -- module redisson [auto]
+   io.netty:netty-resolver-dns:jar:4.2.17.Final:compile -- module io.netty.resolver.dns
+   io.netty:netty-codec-dns:jar:4.2.17.Final:compile -- module io.netty.codec.dns
+   javax.cache:cache-api:jar:1.1.1:compile -- module cache.api (auto)
+   io.projectreactor:reactor-core:jar:3.7.19:compile -- module reactor.core [auto]
+   io.reactivex.rxjava3:rxjava:jar:3.1.12:compile -- module io.reactivex.rxjava3
+   com.esotericsoftware:kryo:jar:5.6.2:compile -- module com.esotericsoftware.kryo [auto]
+   com.esotericsoftware:reflectasm:jar:1.11.9:compile -- module com.esotericsoftware.reflectasm [auto]
+   org.objenesis:objenesis:jar:3.4:compile -- module org.objenesis [auto]
+   com.esotericsoftware:minlog:jar:1.3.1:compile -- module com.esotericsoftware.minlog [auto]
+   org.redisson:redisson-spring-data-35:jar:4.7.0:compile -- module redisson.spring.data35 [auto]
+   org.springframework.data:spring-data-redis:jar:3.5.12:compile -- module spring.data.redis [auto]
+   org.springframework.data:spring-data-keyvalue:jar:3.5.12:compile -- module spring.data.keyvalue [auto]
+   org.springframework.data:spring-data-commons:jar:3.5.12:compile -- module spring.data.commons [auto]
+   org.springframework:spring-oxm:jar:6.2.19:compile -- module spring.oxm [auto]
+   org.springframework.boot:spring-boot-starter-cache:jar:3.5.15:compile -- module spring.boot.starter.cache [auto]
+   com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.21.4:compile -- module com.fasterxml.jackson.datatype.jsr310
+   com.fasterxml.jackson.core:jackson-annotations:jar:2.21:compile -- module com.fasterxml.jackson.annotation
+   com.fasterxml.jackson.core:jackson-core:jar:2.21.4:compile -- module com.fasterxml.jackson.core
+   com.fasterxml.jackson.core:jackson-databind:jar:2.21.4:compile -- module com.fasterxml.jackson.databind
+   cn.iocoder.boot:yudao-spring-boot-starter-job:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.job (auto)
+   org.springframework.boot:spring-boot-starter-quartz:jar:3.5.15:compile -- module spring.boot.starter.quartz [auto]
+   org.springframework:spring-tx:jar:6.2.19:compile -- module spring.tx [auto]
+   org.quartz-scheduler:quartz:jar:2.5.2:compile -- module org.quartz [auto]
+   jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.5:compile -- module jakarta.xml.bind
+   jakarta.validation:jakarta.validation-api:jar:3.0.2:compile -- module jakarta.validation
+   cn.iocoder.boot:yudao-spring-boot-starter-mq:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.mq (auto)
+   cn.iocoder.boot:yudao-spring-boot-starter-excel:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.excel (auto)
+   cn.idev.excel:fastexcel:jar:1.3.0:compile -- module fastexcel (auto)
+   org.apache.commons:commons-csv:jar:1.11.0:compile -- module org.apache.commons.csv
+   org.apache.poi:poi:jar:5.4.1:compile -- module org.apache.poi.poi
+   org.apache.commons:commons-collections4:jar:4.4:compile -- module org.apache.commons.collections4 [auto]
+   org.apache.commons:commons-math3:jar:3.6.1:compile -- module commons.math3 (auto)
+   com.zaxxer:SparseBitSet:jar:1.3:compile -- module com.zaxxer.sparsebitset [auto]
+   org.apache.logging.log4j:log4j-api:jar:2.24.3:compile -- module org.apache.logging.log4j
+   org.apache.poi:poi-ooxml:jar:5.4.1:compile -- module org.apache.poi.ooxml
+   org.apache.poi:poi-ooxml-lite:jar:5.4.1:compile -- module org.apache.poi.ooxml.schemas
+   org.apache.xmlbeans:xmlbeans:jar:5.3.0:compile -- module org.apache.xmlbeans
+   org.apache.commons:commons-compress:jar:1.27.1:compile -- module org.apache.commons.compress
+   com.github.virtuald:curvesapi:jar:1.08:compile -- module com.github.virtuald.curvesapi [auto]
+   org.ehcache:ehcache:jar:3.10.9:compile -- module ehcache (auto)
+   org.glassfish.jaxb:jaxb-runtime:jar:4.0.9:runtime -- module org.glassfish.jaxb.runtime
+   org.glassfish.jaxb:jaxb-core:jar:4.0.9:runtime -- module org.glassfish.jaxb.core
+   org.glassfish.jaxb:txw2:jar:4.0.9:runtime -- module com.sun.xml.txw2
+   com.sun.istack:istack-commons-runtime:jar:4.1.2:runtime -- module com.sun.istack.runtime
+   cn.idev.excel:fastexcel-support:jar:0.0.1:compile -- module fastexcel.support (auto)
+   org.springframework.boot:spring-boot-starter-mail:jar:3.5.15:compile -- module spring.boot.starter.mail [auto]
+   org.springframework:spring-context-support:jar:6.2.19:compile -- module spring.context.support [auto]
+   org.springframework:spring-beans:jar:6.2.19:compile -- module spring.beans [auto]
+   org.eclipse.angus:jakarta.mail:jar:2.0.5:compile -- module jakarta.mail
+   jakarta.activation:jakarta.activation-api:jar:2.1.4:compile -- module jakarta.activation
+   org.eclipse.angus:angus-activation:jar:2.0.3:runtime -- module org.eclipse.angus.activation
+   me.zhyd.oauth:JustAuth:jar:1.16.7:compile -- module JustAuth (auto)
+   com.xkcoding.http:simple-http:jar:1.0.5:compile -- module simple.http (auto)
+   com.xkcoding.justauth:justauth-spring-boot-starter:jar:1.4.0:compile -- module justauth.spring.boot.starter (auto)
+   com.github.binarywang:wx-java-mp-spring-boot-starter:jar:4.8.6-20260825.155844:compile -- module wx.java.mp.spring.boot.starter (auto)
+   com.github.binarywang:weixin-java-mp:jar:4.8.6-20260825.155844:compile -- module weixin.java.mp (auto)
+   org.springframework.boot:spring-boot-autoconfigure:jar:3.5.15:compile -- module spring.boot.autoconfigure [auto]
+   com.github.binarywang:wx-java-miniapp-spring-boot-starter:jar:4.8.6-20260825.155844:compile -- module wx.java.miniapp.spring.boot.starter (auto)
+   com.github.binarywang:weixin-java-miniapp:jar:4.8.6-20260825.155844:compile -- module weixin.java.miniapp (auto)
+   com.anji-plus:captcha-spring-boot-starter:jar:1.4.0:compile -- module captcha.spring.boot.starter (auto)
+   com.anji-plus:captcha:jar:1.4.0:compile -- module captcha (auto)
+   org.dromara.hutool:hutool-extra:jar:6.0.0-M22:compile
+   org.dromara.hutool:hutool-core:jar:6.0.0-M22:compile -- module org.dromara.hutool.core [auto]
+   org.dromara.hutool:hutool-swing:jar:6.0.0-M22:compile -- module org.dromara.hutool.swing [auto]
+   org.dromara.hutool:hutool-setting:jar:6.0.0-M22:compile -- module org.dromara.hutool.setting [auto]
+   org.dromara.hutool:hutool-log:jar:6.0.0-M22:compile -- module org.dromara.hutool.log [auto]
+   org.apache.sshd:sshd-core:jar:2.14.0:compile -- module org.apache.sshd.core [auto]
+   org.apache.sshd:sshd-common:jar:2.14.0:compile -- module org.apache.sshd.common [auto]
+   org.slf4j:jcl-over-slf4j:jar:2.0.18:compile -- module org.apache.commons.logging
+   cn.iocoder.boot:yudao-module-infra:jar:2026.08-campus.1:compile -- module yudao.module.infra (auto)
+   cn.iocoder.boot:yudao-spring-boot-starter-websocket:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.websocket (auto)
+   org.springframework.boot:spring-boot-starter-websocket:jar:3.5.15:compile -- module spring.boot.starter.websocket [auto]
+   org.springframework:spring-messaging:jar:6.2.19:compile -- module spring.messaging [auto]
+   org.springframework:spring-websocket:jar:6.2.19:compile -- module spring.websocket [auto]
+   com.baomidou:mybatis-plus-generator:jar:3.5.17:compile -- module mybatis.plus.generator (auto)
+   org.apache.velocity:velocity-engine-core:jar:2.4.1:compile -- module velocity.engine.core (auto)
+   org.apache.commons:commons-lang3:jar:3.20.0:compile -- module org.apache.commons.lang3
+   org.slf4j:slf4j-api:jar:2.0.18:compile -- module org.slf4j
+   cn.iocoder.boot:yudao-spring-boot-starter-monitor:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.monitor (auto)
+   commons-net:commons-net:jar:3.13.0:compile -- module org.apache.commons.net
+   commons-io:commons-io:jar:2.21.0:compile -- module org.apache.commons.io
+   com.github.mwiede:jsch:jar:2.28.7:compile -- module com.jcraft.jsch
+   software.amazon.awssdk:s3:jar:2.54.7:compile -- module software.amazon.awssdk.services.s3 [auto]
+   software.amazon.awssdk:aws-xml-protocol:jar:2.54.7:compile -- module software.amazon.awssdk.protocols.xml [auto]
+   software.amazon.awssdk:aws-query-protocol:jar:2.54.7:compile -- module software.amazon.awssdk.protocols.query [auto]
+   software.amazon.awssdk:protocol-core:jar:2.54.7:compile -- module software.amazon.awssdk.protocols.core [auto]
+   software.amazon.awssdk:arns:jar:2.54.7:compile -- module software.amazon.awssdk.arns [auto]
+   software.amazon.awssdk:profiles:jar:2.54.7:compile -- module software.amazon.awssdk.profiles [auto]
+   software.amazon.awssdk:crt-core:jar:2.54.7:compile -- module software.amazon.awssdk.crtcore [auto]
+   software.amazon.awssdk:http-auth:jar:2.54.7:compile -- module software.amazon.awssdk.http.auth [auto]
+   software.amazon.awssdk:identity-spi:jar:2.54.7:compile -- module software.amazon.awssdk.identity.spi [auto]
+   software.amazon.awssdk:http-auth-spi:jar:2.54.7:compile -- module software.amazon.awssdk.http.auth.spi [auto]
+   org.reactivestreams:reactive-streams:jar:1.0.4:compile -- module org.reactivestreams [auto]
+   software.amazon.awssdk:http-auth-aws:jar:2.54.7:compile -- module software.amazon.awssdk.http.auth.aws [auto]
+   software.amazon.awssdk:checksums:jar:2.54.7:compile -- module software.amazon.awssdk.checksums [auto]
+   software.amazon.awssdk:checksums-spi:jar:2.54.7:compile -- module software.amazon.awssdk.checksums.spi [auto]
+   software.amazon.awssdk:retries-spi:jar:2.54.7:compile -- module software.amazon.awssdk.retries.api [auto]
+   software.amazon.awssdk:sdk-core:jar:2.54.7:compile -- module software.amazon.awssdk.core [auto]
+   software.amazon.awssdk:retries:jar:2.54.7:compile -- module software.amazon.awssdk.retries [auto]
+   software.amazon.awssdk:auth:jar:2.54.7:compile -- module software.amazon.awssdk.auth [auto]
+   software.amazon.awssdk:http-auth-aws-eventstream:jar:2.54.7:compile -- module software.amazon.awssdk.http.auth.aws.eventstream [auto]
+   software.amazon.eventstream:eventstream:jar:1.0.1:compile -- module software.amazon.eventstream [auto]
+   software.amazon.awssdk:http-client-spi:jar:2.54.7:compile -- module software.amazon.awssdk.http [auto]
+   software.amazon.awssdk:regions:jar:2.54.7:compile -- module software.amazon.awssdk.regions [auto]
+   software.amazon.awssdk:annotations:jar:2.54.7:compile -- module software.amazon.awssdk.annotations [auto]
+   software.amazon.awssdk:utils:jar:2.54.7:compile -- module software.amazon.awssdk.utils [auto]
+   software.amazon.awssdk:aws-core:jar:2.54.7:compile -- module software.amazon.awssdk.awscore [auto]
+   software.amazon.awssdk:utils-lite:jar:2.54.7:compile -- module software.amazon.awssdk.utilslite [auto]
+   software.amazon.awssdk:metrics-spi:jar:2.54.7:compile -- module software.amazon.awssdk.metrics [auto]
+   software.amazon.awssdk:json-utils:jar:2.54.7:compile -- module software.amazon.awssdk.protocols.jsoncore [auto]
+   software.amazon.awssdk:third-party-jackson-core:jar:2.54.7:compile -- module software.amazon.awssdk.thirdparty.jackson.core [auto]
+   software.amazon.awssdk:endpoints-spi:jar:2.54.7:compile -- module software.amazon.awssdk.endpoints [auto]
+   software.amazon.awssdk:apache5-client:jar:2.54.7:runtime -- module software.amazon.awssdk.http.apache5 [auto]
+   org.apache.httpcomponents.client5:httpclient5:jar:5.5.2:runtime -- module org.apache.httpcomponents.client5.httpclient5 [auto]
+   org.apache.httpcomponents.core5:httpcore5-h2:jar:5.3.6:runtime -- module org.apache.httpcomponents.core5.httpcore5.h2 [auto]
+   org.apache.httpcomponents.core5:httpcore5:jar:5.3.6:runtime -- module org.apache.httpcomponents.core5.httpcore5 [auto]
+   software.amazon.awssdk:netty-nio-client:jar:2.54.7:runtime -- module software.amazon.awssdk.http.nio.netty [auto]
+   io.netty:netty-codec-http:jar:4.2.17.Final:runtime -- module io.netty.codec.http
+   io.netty:netty-codec-base:jar:4.2.17.Final:compile -- module io.netty.codec
+   io.netty:netty-codec-compression:jar:4.2.17.Final:compile -- module io.netty.codec.compression
+   io.netty:netty-codec-http2:jar:4.2.17.Final:runtime -- module io.netty.codec.http2
+   io.netty:netty-codec:jar:4.2.17.Final:compile -- module io.netty.codec.unused
+   io.netty:netty-codec-protobuf:jar:4.2.17.Final:compile -- module io.netty.codec.protobuf
+   io.netty:netty-codec-marshalling:jar:4.2.17.Final:compile -- module io.netty.codec.marshalling
+   io.netty:netty-transport:jar:4.2.17.Final:compile -- module io.netty.transport
+   io.netty:netty-common:jar:4.2.17.Final:compile -- module io.netty.common
+   io.netty:netty-buffer:jar:4.2.17.Final:compile -- module io.netty.buffer
+   io.netty:netty-handler:jar:4.2.17.Final:compile -- module io.netty.handler
+   io.netty:netty-transport-native-unix-common:jar:4.2.17.Final:compile -- module io.netty.transport.unix.common
+   io.netty:netty-transport-classes-epoll:jar:4.2.17.Final:runtime -- module io.netty.transport.classes.epoll
+   io.netty:netty-resolver:jar:4.2.17.Final:compile -- module io.netty.resolver
+   org.apache.tika:tika-core:jar:3.3.1:compile -- module org.apache.tika.core [auto]
+   cn.iocoder.boot:yudao-module-member:jar:2026.08-campus.1:compile -- module yudao.module.member (auto)
+   cn.iocoder.boot:yudao-module-pay:jar:2026.08-campus.1:compile -- module yudao.module.pay (auto)
+   com.alipay.sdk:alipay-sdk-java:jar:4.40.978.ALL:compile -- module alipay.sdk.java (auto)
+   commons-logging:commons-logging:jar:1.1.1:compile -- module commons.logging (auto)
+   dom4j:dom4j:jar:1.6.1:compile -- module dom4j (auto)
+   xml-apis:xml-apis:jar:1.0.b2:compile -- module xml.apis (auto)
+   com.squareup.okhttp3:okhttp:jar:4.12.0:compile -- module okhttp3 [auto]
+   com.squareup.okio:okio:jar:3.6.0:compile -- module okio (auto)
+   com.squareup.okio:okio-jvm:jar:3.6.0:compile -- module okio [auto]
+   org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.9.25:compile -- module kotlin.stdlib.common (auto)
+   org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.9.25:compile -- module kotlin.stdlib.jdk8
+   org.jetbrains.kotlin:kotlin-stdlib:jar:1.9.25:compile -- module kotlin.stdlib
+   org.jetbrains:annotations:jar:13.0:compile -- module annotations (auto)
+   org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.9.25:compile -- module kotlin.stdlib.jdk7
+   com.github.binarywang:weixin-java-pay:jar:4.8.6-20260825.155844:compile -- module weixin.java.pay (auto)
+   com.github.binarywang:weixin-java-common:jar:4.8.6-20260825.155844:compile -- module weixin.java.common (auto)
+   com.thoughtworks.xstream:xstream:jar:1.4.21:compile -- module xstream (auto)
+   io.github.x-stream:mxparser:jar:1.2.2:compile -- module io.github.xstream.mxparser [auto]
+   xmlpull:xmlpull:jar:1.1.3.1:compile -- module xmlpull (auto)
+   commons-codec:commons-codec:jar:1.18.0:compile -- module org.apache.commons.codec
+   org.dom4j:dom4j:jar:2.1.3:compile -- module dom4j (auto)
+   com.github.binarywang:qrcode-utils:jar:1.3:compile -- module qrcode.utils (auto)
+   com.google.zxing:core:jar:3.5.0:compile -- module com.google.zxing [auto]
+   org.jodd:jodd-util:jar:6.1.0:compile -- module jodd.util (auto)
+   org.apache.httpcomponents:httpclient:jar:4.5.13:compile -- module org.apache.httpcomponents.httpclient [auto]
+   org.apache.httpcomponents:httpcore:jar:4.4.16:compile -- module org.apache.httpcomponents.httpcore [auto]
+   org.apache.httpcomponents:httpmime:jar:4.5.13:compile -- module org.apache.httpcomponents.httpmime [auto]
+   org.bouncycastle:bcpkix-jdk18on:jar:1.80:compile -- module org.bouncycastle.pkix
+   org.bouncycastle:bcutil-jdk18on:jar:1.80:compile -- module org.bouncycastle.util
+   org.bouncycastle:bcprov-jdk18on:jar:1.80:compile -- module org.bouncycastle.provider
+   com.google.code.gson:gson:jar:2.13.2:compile -- module com.google.gson
+   cn.iocoder.boot:campus-common:jar:2026.08-campus.1:compile -- module campus.common (auto)
+   cn.iocoder.boot:yudao-spring-boot-starter-web:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.web (auto)
+   org.springframework.boot:spring-boot-starter-web:jar:3.5.15:compile -- module spring.boot.starter.web [auto]
+   org.springframework.boot:spring-boot-starter-json:jar:3.5.15:compile -- module spring.boot.starter.json [auto]
+   com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.21.4:compile -- module com.fasterxml.jackson.datatype.jdk8
+   com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.21.4:compile -- module com.fasterxml.jackson.module.paramnames
+   org.springframework.boot:spring-boot-starter-tomcat:jar:3.5.15:compile -- module spring.boot.starter.tomcat [auto]
+   org.apache.tomcat.embed:tomcat-embed-core:jar:10.1.55:compile -- module org.apache.tomcat.embed.core
+   org.apache.tomcat.embed:tomcat-embed-websocket:jar:10.1.55:compile -- module org.apache.tomcat.embed.websocket
+   org.springframework:spring-web:jar:6.2.19:compile -- module spring.web [auto]
+   org.springframework:spring-webmvc:jar:6.2.19:compile -- module spring.webmvc [auto]
+   com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:jar:4.5.0:compile -- module knife4j.openapi3.jakarta.spring.boot.starter (auto)
+   com.github.xiaoymin:knife4j-core:jar:4.5.0:compile -- module knife4j.core (auto)
+   com.github.xiaoymin:knife4j-openapi3-ui:jar:4.5.0:compile -- module knife4j.openapi3.ui (auto)
+   org.springdoc:springdoc-openapi-starter-webmvc-ui:jar:2.8.17:compile -- module org.springdoc.openapi.ui [auto]
+   org.springdoc:springdoc-openapi-starter-webmvc-api:jar:2.8.17:compile -- module org.springdoc.openapi.webmvc.core [auto]
+   org.springdoc:springdoc-openapi-starter-common:jar:2.8.17:compile -- module org.springdoc.openapi.common [auto]
+   io.swagger.core.v3:swagger-core-jakarta:jar:2.2.47:compile -- module io.swagger.v3.core [auto]
+   io.swagger.core.v3:swagger-annotations-jakarta:jar:2.2.47:compile -- module io.swagger.v3.oas.annotations [auto]
+   io.swagger.core.v3:swagger-models-jakarta:jar:2.2.47:compile -- module io.swagger.v3.oas.models [auto]
+   com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.21.4:compile -- module com.fasterxml.jackson.dataformat.yaml
+   org.webjars:swagger-ui:jar:5.32.2:compile -- module swagger.ui (auto)
+   org.webjars:webjars-locator-lite:jar:1.1.3:compile -- module org.webjars.locator_lite [auto]
+   org.jsoup:jsoup:jar:1.23.2:compile -- module org.jsoup
+   org.springframework.boot:spring-boot-configuration-processor:jar:3.5.15:compile (optional) -- module spring.boot.configuration.processor [auto]
+   cn.iocoder.boot:yudao-spring-boot-starter-protection:jar:2026.08-campus.1:compile -- module yudao.spring.boot.starter.protection (auto)

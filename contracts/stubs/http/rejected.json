@@ -1,0 +1,25 @@
+{
+  "scenario": "REJECTED",
+  "contractVersion": "2026.08-campus.1",
+  "httpStatus": 400,
+  "body": {
+    "code": 1040000001,
+    "message": "金额必须使用整数分",
+    "data": {
+      "retryable": false,
+      "requiredAction": "USER_FIX",
+      "fieldErrors": [
+        {
+          "field": "amountFen",
+          "reason": "金额必须使用整数分"
+        }
+      ]
+    },
+    "traceId": "3a513e8f2123fd3e87f82803508c2bce"
+  },
+  "assertions": [
+    "HTTP 状态为 400，不是 200",
+    "data.requiredAction 为 USER_FIX，客户端不得自动重试",
+    "响应体不含异常类名、堆栈、SQL 或连接串"
+  ]
+}
