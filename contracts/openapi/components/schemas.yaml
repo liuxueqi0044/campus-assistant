@@ -187,6 +187,93 @@ VerificationMethod:
   enum: [STUDENT_CARD]
   description: 当前可提交的认证方式。未列出的方法会在请求解析阶段被拒绝。
 
+MediaPurpose:
+  type: string
+  enum: [MEMBERSHIP_VERIFICATION]
+
+UploadTicketRequest:
+  type: object
+  additionalProperties: false
+  required: [purpose, fileName, size, mime]
+  properties:
+    purpose:
+      $ref: "#/MediaPurpose"
+    fileName:
+      type: string
+      minLength: 1
+      maxLength: 255
+      description: 仅作展示，不参与对象 key。
+    size:
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 10485760
+    mime:
+      type: string
+      enum: [image/jpeg, image/png, application/pdf]
+
+UploadTicket:
+  type: object
+  additionalProperties: false
+  required: [assetId, generation, uploadMethod, uploadUrl, expiresAt, requiredHeaders]
+  properties:
+    assetId:
+      $ref: "#/CampusId"
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    uploadMethod:
+      type: string
+      enum: [PROXY_PUT, SIGNED_PUT]
+    uploadUrl:
+      type: string
+      description: 单个 asset 的短时上传入口，不得持久化为业务 URL。
+    expiresAt:
+      $ref: "#/CampusTimestamp"
+    requiredHeaders:
+      type: object
+      additionalProperties:
+        type: string
+      description: 可能含临时凭据；不得写日志、埋点或错误回传。
+
+UploadTicketResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/UploadTicket"
+
+UploadContent:
+  type: object
+  additionalProperties: false
+  required: [assetId, generation, bytesWritten, status]
+  properties:
+    assetId:
+      $ref: "#/CampusId"
+    generation:
+      type: integer
+      format: int64
+      minimum: 1
+    bytesWritten:
+      type: integer
+      format: int64
+      minimum: 1
+    status:
+      type: string
+      enum: [UPLOADING]
+
+UploadContentResponse:
+  allOf:
+    - $ref: "#/CampusResponse"
+    - type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/UploadContent"
+
 SubmitVerificationRequest:
   type: object
   additionalProperties: false

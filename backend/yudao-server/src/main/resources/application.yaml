@@ -288,6 +288,10 @@ yudao:
 
 campus:
   platform-tenant-id: ${CAMPUS_PLATFORM_TENANT_ID:1} # 学生端账号/OAuth 数据固定归属的服务端租户；不接受客户端覆盖
+  media:
+    storage: ${CAMPUS_MEDIA_STORAGE:local}
+    local-root: ${CAMPUS_MEDIA_LOCAL_ROOT:${java.io.tmpdir}/campus-assistant/private-media}
+    local-signing-key: ${CAMPUS_MEDIA_LOCAL_SIGNING_KEY:${random.uuid}}
   wechat:
     connect-timeout: ${CAMPUS_WECHAT_CONNECT_TIMEOUT:3s}
     read-timeout: ${CAMPUS_WECHAT_READ_TIMEOUT:5s}

@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import { demoData } from '@/data/demo'
+import { createVerificationFlowState, resetVerificationFlow } from '@/features/account/verification'
 import type { Service, Tab, User, Course, Conversation, Notice, Activity } from '@/types'
 const mode = import.meta.env.VITE_API_MODE || 'demo'
 if (!['demo', 'real'].includes(mode)) throw new Error('VITE_API_MODE 必须为 demo 或 real')
@@ -50,6 +51,9 @@ export const state = reactive({
   privateError: '',
   sessionExpiresAt: '',
   profileCompletion: null as boolean | null,
+  membershipExpiresAt: '',
+  membershipScopeVersion: null as number | null,
+  verificationFlow: createVerificationFlowState(isDemo),
 })
 interface DemoPrivateSnapshot {
   user: User
@@ -84,6 +88,9 @@ export function clearPrivateWorkspace() {
   for (const product of state.products) delete product.buyerConfirmed
   state.privateState = 'ready'
   state.privateError = ''
+  state.membershipExpiresAt = ''
+  state.membershipScopeVersion = null
+  resetVerificationFlow(state.verificationFlow, isDemo)
 }
 export function suspendDemoSession() {
   if (!isDemo) throw new Error('仅演示模式可以保存演示会话。')
@@ -154,5 +161,8 @@ export function replaceDemo() {
     privateError: '',
     sessionExpiresAt: '',
     profileCompletion: null,
+    membershipExpiresAt: '',
+    membershipScopeVersion: null,
+    verificationFlow: createVerificationFlowState(true),
   })
 }

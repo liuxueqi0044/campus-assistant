@@ -19,9 +19,13 @@ import type {
   Product,
   Conversation,
   Notice,
+  MembershipDTO,
   SchoolContextDTO,
   SchoolsResponseDTO,
+  SubmitVerificationInput,
   User,
+  VerificationApplicationDTO,
+  VerificationStatus,
   WechatLoginDTO,
 } from '@/types'
 const pause = () => new Promise((r) => setTimeout(r, 180))
@@ -61,7 +65,12 @@ function invalidateSession() {
   pending.clear()
   uncertainKeys.clear()
 }
-async function command<T>(path: string, body: unknown, apply: () => T): Promise<T> {
+async function command<T>(
+  path: string,
+  body: unknown,
+  apply: () => T,
+  options: { refreshAfter?: boolean } = {},
+): Promise<T> {
   requireUser()
   const stamp = sessionGeneration,
     actorId = state.user.id,
@@ -100,8 +109,10 @@ async function command<T>(path: string, body: unknown, apply: () => T): Promise<
     } else {
       result = await request<T>('POST', path, payload, key)
       assertSession(stamp, actorId)
-      await refresh()
-      assertSession(stamp, actorId)
+      if (options.refreshAfter !== false) {
+        await refresh()
+        assertSession(stamp, actorId)
+      }
     }
     uncertainKeys.delete(fingerprint)
     return result
@@ -335,11 +346,42 @@ export const api = {
       }
     }
   },
-  verify: (input: { name: string; studentId: string }) =>
-    command('/verifications', input, () => {
-      if (!input.name.trim() || !input.studentId.trim()) throw new Error('请完整填写认证信息。')
-      state.user.verification = 'PENDING'
-    }),
+  async verify(input: SubmitVerificationInput): Promise<VerificationApplicationDTO> {
+    const payload = normalizeVerificationSubmission(input)
+    const result = await command<VerificationApplicationDTO>(
+      '/verifications',
+      payload,
+      () => ({
+        applicationId: `demo-verification-${Date.now()}`,
+        status: 'PENDING',
+        version: 1,
+      }),
+      { refreshAfter: false },
+    )
+    const application = normalizeVerificationApplication(result)
+    state.user.verification = 'PENDING'
+    return application
+  },
+  async checkMembership(schoolId: string, campusId: string): Promise<MembershipDTO> {
+    requireUser()
+    const normalizedSchoolId = positiveDecimalId(schoolId, 'schoolId')
+    const normalizedCampusId = positiveDecimalId(campusId, 'campusId')
+    const result = isDemo
+      ? {
+          effective: true as const,
+          expiresAt: '2027-09-17T00:00:00+08:00',
+          scopeVersion: 1,
+        }
+      : await request<MembershipDTO>(
+          'GET',
+          `/membership?schoolId=${encodeURIComponent(normalizedSchoolId)}&campusId=${encodeURIComponent(normalizedCampusId)}`,
+        )
+    const membership = normalizeMembership(result)
+    state.user.verification = 'VERIFIED'
+    state.membershipExpiresAt = membership.expiresAt
+    state.membershipScopeVersion = membership.scopeVersion
+    return membership
+  },
   toggleFavorite: (id: string) =>
     command(`/market/listings/${id}/favorite`, {}, () => {
       find(state.products, id)
@@ -879,9 +921,101 @@ function normalizeUser(
       (campus as Campus | undefined)?.id ||
       '',
     loggedIn: value.loggedIn ?? contextLoggedIn === true,
-    verification: value.verificationStatus || value.verification || 'NONE',
+    verification: normalizeVerificationStatus(value.verificationStatus || value.verification),
     runner: value.runnerEligible ?? value.runner ?? false,
   }
+}
+
+function normalizeVerificationSubmission(input: SubmitVerificationInput): SubmitVerificationInput {
+  if (!input || input.method !== 'STUDENT_CARD')
+    throw new ApiError('REQUEST_INVALID', '当前只支持学生证材料认证。', undefined, 'USER_FIX')
+  const schoolId = isDemo
+    ? requireTextId(input.schoolId, 'schoolId')
+    : positiveDecimalId(input.schoolId, 'schoolId')
+  const campusId = isDemo
+    ? requireTextId(input.campusId, 'campusId')
+    : positiveDecimalId(input.campusId, 'campusId')
+  if (
+    !Array.isArray(input.evidenceRefs) ||
+    !input.evidenceRefs.length ||
+    input.evidenceRefs.length > 10
+  )
+    throw new ApiError('REQUEST_INVALID', '认证材料必须为 1–10 个媒体 ID。', undefined, 'USER_FIX')
+  const evidenceRefs = input.evidenceRefs.map((reference) => {
+    const value = requireTextId(reference, 'evidenceRefs')
+    if (value.length > 128 || value.includes('://'))
+      throw new ApiError(
+        'REQUEST_INVALID',
+        '认证材料必须使用媒体服务返回的 ID，不能提交文件地址。',
+        undefined,
+        'USER_FIX',
+      )
+    return value
+  })
+  if (new Set(evidenceRefs).size !== evidenceRefs.length)
+    throw new ApiError('REQUEST_INVALID', '认证材料不能重复。', undefined, 'USER_FIX')
+  return { schoolId, campusId, method: 'STUDENT_CARD', evidenceRefs }
+}
+
+function normalizeVerificationApplication(value: VerificationApplicationDTO) {
+  if (
+    !value ||
+    typeof value.applicationId !== 'string' ||
+    !value.applicationId.trim() ||
+    (!/^[1-9][0-9]*$/.test(value.applicationId) && !isDemo) ||
+    value.status !== 'PENDING' ||
+    !Number.isSafeInteger(value.version) ||
+    value.version < 1
+  )
+    throw new ApiError('CONTRACT_INVALID', '认证提交响应不符合当前契约。')
+  return {
+    applicationId: value.applicationId,
+    status: value.status,
+    version: value.version,
+  }
+}
+
+function normalizeMembership(value: MembershipDTO): MembershipDTO {
+  if (
+    !value ||
+    value.effective !== true ||
+    !validExpiry(value.expiresAt) ||
+    !Number.isSafeInteger(value.scopeVersion) ||
+    value.scopeVersion < 1
+  )
+    throw new ApiError('CONTRACT_INVALID', '成员资格响应不符合当前契约。')
+  return value
+}
+
+function positiveDecimalId(value: unknown, field: 'schoolId' | 'campusId') {
+  if (typeof value !== 'string' || !/^[1-9][0-9]*$/.test(value))
+    throw new ApiError(
+      'REQUEST_INVALID',
+      `${field} 必须是十进制正整数字符串。`,
+      undefined,
+      'USER_FIX',
+    )
+  return value
+}
+
+function requireTextId(value: unknown, field: string) {
+  if (typeof value !== 'string' || !value.trim())
+    throw new ApiError('REQUEST_INVALID', `${field} 不能为空。`, undefined, 'USER_FIX')
+  return value.trim()
+}
+
+function normalizeVerificationStatus(value: unknown): VerificationStatus {
+  if (value === 'APPROVED') return 'VERIFIED'
+  if (
+    value === 'NONE' ||
+    value === 'PENDING' ||
+    value === 'VERIFIED' ||
+    value === 'REJECTED' ||
+    value === 'EXPIRED' ||
+    value === 'REVOKED'
+  )
+    return value
+  return 'NONE'
 }
 const reservations = new Map<string, string>()
 function signature(c: Partial<Course>) {

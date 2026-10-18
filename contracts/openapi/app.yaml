@@ -25,9 +25,98 @@ tags:
     description: 微信登录与学生身份绑定（M01.01）
   - name: membership-verification
     description: 成员认证提交与当前成员资格检查（M01.03）
+  - name: media
+    description: 私有媒体上传票据与开发环境受控上传（M02.01）
 security:
   - bearerAuth: []
 paths:
+  /app-api/campus/v1/media/upload-tickets:
+    post:
+      operationId: issueMediaUploadTicket
+      tags: [media]
+      summary: 申请受限上传票据
+      description: |
+        owner 只取当前学生登录事实。文件名仅用于展示；对象 key 由服务端生成。当前仅开放
+        MEMBERSHIP_VERIFICATION，并返回单资产、短时、不可列目录的上传能力。
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/schemas.yaml#/UploadTicketRequest"
+      responses:
+        "200":
+          description: 同键同体返回同一 asset/generation；requiredHeaders 不得进入日志或分析 SDK
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/UploadTicketResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "429":
+          $ref: "./components/responses.yaml#/TooManyRequests"
+        "503":
+          $ref: "./components/responses.yaml#/ServiceUnavailable"
+  /app-api/campus/v1/media/assets/{assetId}/content:
+    put:
+      operationId: uploadMediaToLocalPrivateStorage
+      tags: [media]
+      summary: 上传到开发环境私有存储
+      description: |
+        只供 local 私有存储适配器。生产云存储返回受限直传票据，不开放该代理上传入口。
+        调用方仍需 bearer 身份和 X-Upload-Token；对象不可覆盖。
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            $ref: "./components/schemas.yaml#/CampusId"
+        - name: X-Upload-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: { type: string, format: binary }
+          image/png:
+            schema: { type: string, format: binary }
+          application/pdf:
+            schema: { type: string, format: binary }
+      responses:
+        "200":
+          description: 字节已写入私有隔离区；尚未完成 M02.02 验证，不能绑定或发布
+          content:
+            application/json:
+              schema:
+                $ref: "./components/schemas.yaml#/UploadContentResponse"
+        "400":
+          $ref: "./components/responses.yaml#/BadRequest"
+        "401":
+          $ref: "./components/responses.yaml#/Unauthorized"
+        "403":
+          $ref: "./components/responses.yaml#/Forbidden"
+        "409":
+          $ref: "./components/responses.yaml#/Conflict"
+        "503":
+          $ref: "./components/responses.yaml#/ServiceUnavailable"
   /app-api/campus/v1/verifications:
     post:
       operationId: submitMembershipVerification

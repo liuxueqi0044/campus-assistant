@@ -70,6 +70,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- M02：私有媒体上传、验证绑定和受控下载。 -->
+        <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>campus-module-media</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 数据报表。默认注释，保证编译速度 -->
 <!--        <dependency>-->
 <!--            <groupId>cn.iocoder.boot</groupId>-->

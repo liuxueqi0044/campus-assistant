@@ -746,4 +746,127 @@ describe('real mode never falls back to demonstration data', () => {
     ])
     expect(state.campusId).toBe('C2')
   })
+
+  it('submits the canonical M01.03 verification command with an idempotency key', async () => {
+    send.mockImplementation((options) =>
+      options.success({
+        statusCode: 200,
+        data: {
+          code: 0,
+          data: { applicationId: '9007199254740997', status: 'PENDING', version: 1 },
+        },
+      }),
+    )
+    const { state } = await import('@/state')
+    state.user = {
+      id: '101',
+      name: '测试用户',
+      schoolId: '11',
+      school: '测试学校',
+      campusId: '12',
+      loggedIn: true,
+      verification: 'NONE',
+      runner: false,
+    }
+    const { api } = await import('./api')
+    await expect(
+      api.verify({
+        schoolId: '11',
+        campusId: '12',
+        method: 'STUDENT_CARD',
+        evidenceRefs: ['9007199254741999'],
+      }),
+    ).resolves.toEqual({
+      applicationId: '9007199254740997',
+      status: 'PENDING',
+      version: 1,
+    })
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(send.mock.calls[0][0]).toMatchObject({
+      method: 'POST',
+      data: {
+        schoolId: '11',
+        campusId: '12',
+        method: 'STUDENT_CARD',
+        evidenceRefs: ['9007199254741999'],
+      },
+      header: expect.objectContaining({ 'Idempotency-Key': expect.any(String) }),
+    })
+    expect(send.mock.calls[0][0].url).toBe(
+      'https://campus.example.test/app-api/campus/v1/verifications',
+    )
+    expect(state.user.verification).toBe('PENDING')
+  })
+
+  it('rejects non-canonical verification ids and public evidence URLs before transport', async () => {
+    const { state } = await import('@/state')
+    state.user.loggedIn = true
+    state.user.id = '101'
+    const { api } = await import('./api')
+    await expect(
+      api.verify({
+        schoolId: 'S1',
+        campusId: '12',
+        method: 'STUDENT_CARD',
+        evidenceRefs: ['https://public.example.test/student-card.jpg'],
+      }),
+    ).rejects.toMatchObject({ code: 'REQUEST_INVALID' })
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the verification response does not contain canonical string ids', async () => {
+    send.mockImplementation((options) =>
+      options.success({
+        statusCode: 200,
+        data: {
+          code: 0,
+          data: { applicationId: 9007199254740996, status: 'PENDING', version: 1 },
+        },
+      }),
+    )
+    const { state } = await import('@/state')
+    state.user.loggedIn = true
+    state.user.id = '101'
+    const { api } = await import('./api')
+    await expect(
+      api.verify({
+        schoolId: '11',
+        campusId: '12',
+        method: 'STUDENT_CARD',
+        evidenceRefs: ['13'],
+      }),
+    ).rejects.toMatchObject({ code: 'CONTRACT_INVALID' })
+    expect(state.user.verification).toBe('NONE')
+  })
+
+  it('uses membership SELF_CHECK only as proof of an effective membership', async () => {
+    send.mockImplementation((options) =>
+      options.success({
+        statusCode: 200,
+        data: {
+          code: 0,
+          data: {
+            effective: true,
+            expiresAt: '2027-09-17T00:00:00+08:00',
+            scopeVersion: 7,
+          },
+        },
+      }),
+    )
+    const { state } = await import('@/state')
+    state.user.loggedIn = true
+    state.user.id = '101'
+    const { api } = await import('./api')
+    await expect(api.checkMembership('11', '12')).resolves.toMatchObject({
+      effective: true,
+      scopeVersion: 7,
+    })
+    expect(send.mock.calls[0][0]).toMatchObject({ method: 'GET' })
+    expect(send.mock.calls[0][0].url).toBe(
+      'https://campus.example.test/app-api/campus/v1/membership?schoolId=11&campusId=12',
+    )
+    expect(state.user.verification).toBe('VERIFIED')
+    expect(state.membershipExpiresAt).toBe('2027-09-17T00:00:00+08:00')
+    expect(state.membershipScopeVersion).toBe(7)
+  })
 })

@@ -184,7 +184,7 @@ jobs:
           cache: maven
       - name: Backend test suite
         working-directory: backend
-        run: mvn -B -pl campus-common,campus-test-support,campus-module-identity -am test
+        run: mvn -B -pl campus-common,campus-test-support,campus-module-identity,campus-module-media -am test
       - name: Complete backend build
         working-directory: backend
         run: mvn -B package -DskipTests
