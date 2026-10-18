@@ -91,40 +91,6 @@ public interface CampusErrorCodes {
             new ErrorCode(1_040_001_013, "身份关联冲突，请联系运营处理"),
             HttpStatus.CONFLICT, CampusRetryAction.OPERATOR);
 
-    // ========== M01.03 校园身份认证与成员资格 ===========
-
-    CampusErrorSpec MEDIA_NOT_OWNED = CampusErrorSpec.of("MEDIA_NOT_OWNED",
-            new ErrorCode(1_040_001_020, "认证材料不属于当前用户"),
-            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
-
-    CampusErrorSpec MEDIA_NOT_READY = CampusErrorSpec.of("MEDIA_NOT_READY",
-            new ErrorCode(1_040_001_021, "认证材料尚未处理完成，请稍后重试"),
-            HttpStatus.CONFLICT, CampusRetryAction.RETRY);
-
-    CampusErrorSpec VERIFICATION_CONFLICT = CampusErrorSpec.of("VERIFICATION_CONFLICT",
-            new ErrorCode(1_040_001_022, "认证申请状态已变化，请刷新后重试"),
-            HttpStatus.CONFLICT, CampusRetryAction.USER_FIX);
-
-    CampusErrorSpec MEMBERSHIP_REQUIRED = CampusErrorSpec.of("MEMBERSHIP_REQUIRED",
-            new ErrorCode(1_040_001_023, "需要有效的校园成员资格"),
-            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
-
-    CampusErrorSpec MEMBERSHIP_EXPIRED = CampusErrorSpec.of("MEMBERSHIP_EXPIRED",
-            new ErrorCode(1_040_001_024, "校园成员资格已过期"),
-            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
-
-    CampusErrorSpec MEMBERSHIP_REVOKED = CampusErrorSpec.of("MEMBERSHIP_REVOKED",
-            new ErrorCode(1_040_001_025, "校园成员资格已撤销"),
-            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
-
-    CampusErrorSpec VERIFICATION_METHOD_DISABLED = CampusErrorSpec.of("VERIFICATION_METHOD_DISABLED",
-            new ErrorCode(1_040_001_026, "该认证方式当前不可用"),
-            HttpStatus.CONFLICT, CampusRetryAction.OPERATOR);
-
-    CampusErrorSpec VERIFICATION_REVIEW_FORBIDDEN = CampusErrorSpec.of("VERIFICATION_REVIEW_FORBIDDEN",
-            new ErrorCode(1_040_001_027, "没有审核该认证申请的权限"),
-            HttpStatus.FORBIDDEN, CampusRetryAction.USER_FIX);
-
     // ========== 事件契约（消费者可观察失败） ==========
 
     CampusErrorSpec EVENT_ENVELOPE_INVALID = CampusErrorSpec.of("CAMPUS_EVENT_ENVELOPE_INVALID",
@@ -180,14 +146,6 @@ public interface CampusErrorCodes {
             IDENTITY_PROVIDER_UNAVAILABLE,
             ACCOUNT_DISABLED,
             IDENTITY_BINDING_CONFLICT,
-            MEDIA_NOT_OWNED,
-            MEDIA_NOT_READY,
-            VERIFICATION_CONFLICT,
-            MEMBERSHIP_REQUIRED,
-            MEMBERSHIP_EXPIRED,
-            MEMBERSHIP_REVOKED,
-            VERIFICATION_METHOD_DISABLED,
-            VERIFICATION_REVIEW_FORBIDDEN,
             EVENT_ENVELOPE_INVALID,
             EVENT_PAYLOAD_FORBIDDEN,
             EVENT_VERSION_UNSUPPORTED,

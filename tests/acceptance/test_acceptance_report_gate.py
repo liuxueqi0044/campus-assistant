@@ -51,15 +51,6 @@ class AcceptanceReportGateTest(unittest.TestCase):
         payload["mutationGuard"] = {"status": "PASS"}
         self.assertEqual(MODULE.validate_report("M00.04", payload), [])
 
-    def test_b_report_requires_exact_level_and_valkey(self):
-        payload = passing_payload("M01.01")
-        payload["level"] = "B"
-        errors = MODULE.validate_report("M01.01", payload, "B")
-        self.assertIn("valkey_not_configured", errors)
-        payload["valkeyConfigured"] = True
-        self.assertEqual(MODULE.validate_report("M01.01", payload, "B"), [])
-        self.assertIn("level_mismatch:B!=expected:A", MODULE.validate_report("M01.01", payload))
-
 
 if __name__ == "__main__":
     unittest.main()

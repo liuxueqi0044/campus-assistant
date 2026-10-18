@@ -2,7 +2,6 @@
 
 import importlib.util
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -41,55 +40,6 @@ class M01AcceptanceGateTest(unittest.TestCase):
         })
         self.assertTrue(ready)
         self.assertEqual(selected["url"], "jdbc:mysql://localhost/campus_m0101_it")
-
-    def test_m0103_uses_only_its_dedicated_schema_variables(self):
-        environment = {
-            "CAMPUS_MYSQL_IT_URL": "jdbc:mysql://localhost/shared_acceptance",
-            "CAMPUS_MYSQL_IT_USERNAME": "shared-user",
-            "CAMPUS_MYSQL_IT_PASSWORD": "shared-password",
-        }
-        ready, _ = MODULE.configured_mysql(environment, "M01.03")
-        self.assertFalse(ready)
-        environment.update({
-            "CAMPUS_M0103_MYSQL_URL": "jdbc:mysql://localhost/campus_m0103_acceptance",
-            "CAMPUS_M0103_MYSQL_USERNAME": "fixture-user",
-            "CAMPUS_M0103_MYSQL_PASSWORD": "fixture-password",
-        })
-        ready, selected = MODULE.configured_mysql(environment, "M01.03")
-        self.assertTrue(ready)
-        actual = MODULE.runner_environment(environment, selected, "M01.03")
-        self.assertEqual(actual["CAMPUS_M0103_MYSQL_URL"], environment["CAMPUS_M0103_MYSQL_URL"])
-
-    def test_m0103_requires_every_selected_suite(self):
-        suites = {
-            name: MODULE.SuiteEvidence(name, 1, 0, 0, 0, "fixture.xml")
-            for name in MODULE.M0103_REQUIRED_TESTS
-        }
-        self.assertEqual(MODULE.evaluate(
-            MODULE.CommandResult(0, "", ""), suites, True, MODULE.M0103_REQUIRED_TESTS)[0], "PASS")
-        suites.pop("M0103MySqlIntegrationTest")
-        self.assertEqual(MODULE.evaluate(
-            MODULE.CommandResult(0, "", ""), suites, True, MODULE.M0103_REQUIRED_TESTS)[0], "FAIL")
-
-    def test_surefire_failure_details_are_redacted_and_bounded(self):
-        original_identity = MODULE.IDENTITY
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            reports = root / "target" / "surefire-reports"
-            reports.mkdir(parents=True)
-            (reports / "TEST-fixture.xml").write_text(
-                '<testsuite name="example.FixtureTest" tests="1" failures="1" errors="0" skipped="0">'
-                '<testcase name="fails"><failure type="AssertionError" '
-                'message="password=fixture-secret expected true">stack trace</failure></testcase>'
-                '</testsuite>', encoding="utf-8")
-            MODULE.IDENTITY = root
-            try:
-                failures = MODULE.parse_surefire_failures(0, {"TEST_PASSWORD": "fixture-secret"})
-            finally:
-                MODULE.IDENTITY = original_identity
-        self.assertEqual(failures[0]["suite"], "FixtureTest")
-        self.assertNotIn("fixture-secret", failures[0]["detail"])
-        self.assertIn("<redacted>", failures[0]["detail"])
 
 
 if __name__ == "__main__":

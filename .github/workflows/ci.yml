@@ -38,7 +38,7 @@ jobs:
           if-no-files-found: error
 
   database-a:
-    name: Database acceptance
+    name: Database A acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -49,18 +49,10 @@ jobs:
           MYSQL_USER: campus_ci
           MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
           MYSQL_ROOT_PASSWORD: TEST_CAMPUS_ROOT_NOT_A_CREDENTIAL
-          MYSQL_ROOT_HOST: '%'
         ports:
           - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pTEST_CAMPUS_ROOT_NOT_A_CREDENTIAL"
-          --health-interval=10s --health-timeout=5s --health-retries=20
-      valkey:
-        image: valkey/valkey:8.1.10-alpine@sha256:d2e18f3410b6f616de1417f570fa55261af2898b9c5b2cfb6781ce2373ea43d1
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd="valkey-cli ping | grep -q PONG"
           --health-interval=10s --health-timeout=5s --health-retries=20
     steps:
       # actions/checkout v5.1.0, pinned to the reviewed commit.
@@ -97,37 +89,6 @@ jobs:
           CAMPUS_MYSQL_IT_USERNAME: campus_ci
           CAMPUS_MYSQL_IT_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
         run: python scripts/ci/m01_acceptance.py --module M01.01 --level A --report artifacts/acceptance/m01.01-a.json
-      - name: Run M01.01 B full-server integration
-        id: m01_01_b
-        if: always()
-        continue-on-error: true
-        env:
-          CAMPUS_M0101_B_MYSQL_URL: jdbc:mysql://127.0.0.1:3306/campus_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-          CAMPUS_M0101_B_MYSQL_USERNAME: campus_ci
-          CAMPUS_M0101_B_MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
-          CAMPUS_M0101_B_SCHEMA_GUARD: campus_acceptance
-          CAMPUS_M0101_B_VALKEY_URL: redis://127.0.0.1:6379/0
-          CAMPUS_M0101_B_PREPARE: IMPORT_FIXED_BASELINE
-        run: python scripts/ci/m0101_b_acceptance.py --report artifacts/acceptance/m01.01-b.json
-      - name: Provision isolated M01.03 acceptance schema
-        id: m01_03_schema
-        if: always()
-        continue-on-error: true
-        env:
-          MYSQL_PWD: TEST_CAMPUS_ROOT_NOT_A_CREDENTIAL
-        run: |
-          mysql --protocol=tcp -h 127.0.0.1 -u root -e \
-            "CREATE DATABASE IF NOT EXISTS campus_m0103_acceptance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-             GRANT ALL PRIVILEGES ON campus_m0103_acceptance.* TO 'campus_ci'@'%';"
-      - name: Run explicit M01.03 A selector
-        id: m01_03
-        if: always()
-        continue-on-error: true
-        env:
-          CAMPUS_M0103_MYSQL_URL: jdbc:mysql://127.0.0.1:3306/campus_m0103_acceptance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-          CAMPUS_M0103_MYSQL_USERNAME: campus_ci
-          CAMPUS_M0103_MYSQL_PASSWORD: TEST_CAMPUS_CI_NOT_A_CREDENTIAL
-        run: python scripts/ci/m01_acceptance.py --module M01.03 --level A --report artifacts/acceptance/m01.03-a.json
       - name: Scan acceptance evidence for sensitive data
         id: evidence_scan
         if: always()
@@ -150,23 +111,15 @@ jobs:
           M00_04_OUTCOME: ${{ steps.m00_04.outcome }}
           M00_05_OUTCOME: ${{ steps.m00_05.outcome }}
           M01_01_OUTCOME: ${{ steps.m01_01.outcome }}
-          M01_01_B_OUTCOME: ${{ steps.m01_01_b.outcome }}
-          M01_03_SCHEMA_OUTCOME: ${{ steps.m01_03_schema.outcome }}
-          M01_03_OUTCOME: ${{ steps.m01_03.outcome }}
           EVIDENCE_SCAN_OUTCOME: ${{ steps.evidence_scan.outcome }}
         run: |
           python scripts/ci/check_acceptance_reports.py \
             --report M00.04=artifacts/acceptance/m00.04-a.json \
             --report M00.05=artifacts/acceptance/m00.05-a.json \
-            --report M01.01=artifacts/acceptance/m01.01-a.json \
-            --report M01.01:B=artifacts/acceptance/m01.01-b.json \
-            --report M01.03=artifacts/acceptance/m01.03-a.json
+            --report M01.01=artifacts/acceptance/m01.01-a.json
           test "$M00_04_OUTCOME" = success
           test "$M00_05_OUTCOME" = success
           test "$M01_01_OUTCOME" = success
-          test "$M01_01_B_OUTCOME" = success
-          test "$M01_03_SCHEMA_OUTCOME" = success
-          test "$M01_03_OUTCOME" = success
           test "$EVIDENCE_SCAN_OUTCOME" = success
 
   backend:

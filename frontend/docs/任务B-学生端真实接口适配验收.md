@@ -1,13 +1,9 @@
 # 任务 B：学生端真实接口适配验收记录
 
-验收日期：2026-09-17（Asia/Shanghai）
-
-worktree：`C:\Users\xiayu\Documents\Codex\2026-09-17\campus-assistant-student-api`
-
-分支：`feature/student-real-api`
-
-代码基线：`1de4061cd37a3b053d33577ab94d0d79306de6dd`（另含协调文档提交）
-
+验收日期：2026-09-17（Asia/Shanghai）  
+worktree：`C:\Users\xiayu\Documents\Codex\2026-09-17\campus-assistant-student-api`  
+分支：`feature/student-real-api`  
+代码基线：`1de4061cd37a3b053d33577ab94d0d79306de6dd`（另含协调文档提交）  
 最终代码提交：`31aae72b22e0522459fc80b218da317bc31be282`
 
 ## 结论
