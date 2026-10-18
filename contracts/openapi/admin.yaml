@@ -16,60 +16,9 @@ servers:
 tags:
   - name: ops
     description: 运维探针（M00.01）
-  - name: membership-verification
-    description: 成员认证审核（M01.03）
 security:
   - bearerAuth: []
 paths:
-  /admin-api/campus/v1/verifications/{id}/review:
-    post:
-      operationId: reviewMembershipVerification
-      tags: [membership-verification]
-      summary: 审核校园身份认证申请
-      description: |
-        只使用当前后台登录操作者；学校范围与 VERIFICATION_REVIEW 权限由服务端授权端口判定。
-        不接受 operatorId、schoolId 或任何材料 URL。相同 Idempotency-Key 与相同审核命令可安全重试。
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            $ref: "./components/schemas.yaml#/CampusId"
-        - name: Idempotency-Key
-          in: header
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 256
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/schemas.yaml#/ReviewVerificationRequest"
-      responses:
-        "200":
-          description: 审核完成或返回同一幂等命令的既有结果
-          headers:
-            X-Trace-Id:
-              $ref: "./components/headers.yaml#/X-Trace-Id"
-          content:
-            application/json:
-              schema:
-                $ref: "./components/schemas.yaml#/VerificationReviewResponse"
-        "400":
-          $ref: "./components/responses.yaml#/BadRequest"
-        "401":
-          $ref: "./components/responses.yaml#/Unauthorized"
-        "403":
-          $ref: "./components/responses.yaml#/Forbidden"
-        "404":
-          $ref: "./components/responses.yaml#/NotFound"
-        "409":
-          $ref: "./components/responses.yaml#/Conflict"
-        "500":
-          $ref: "./components/responses.yaml#/InternalError"
   /health/readiness:
     get:
       operationId: getCampusReadiness

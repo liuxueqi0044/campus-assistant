@@ -31,7 +31,7 @@ class M0102MySqlIntegrationTest {
     void setUp() {
         jdbc = new JdbcTemplate(new DriverManagerDataSource(URL, USERNAME, PASSWORD));
         fixtureFlyway().clean();
-        fixtureFlyway().migrate();
+        assertThat(fixtureFlyway().migrate().migrationsExecuted).isEqualTo(3);
     }
 
     @AfterEach
@@ -40,13 +40,12 @@ class M0102MySqlIntegrationTest {
     }
 
     @Test
-    void publicDirectoryFixtureIsExplicitAndRequiredProductionTablesArePresent() {
+    void productionMigrationContainsNoMembershipTableAndFixtureIsExplicitlyTestOnly() {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM campus_school", Integer.class)).isEqualTo(2);
         assertThat(jdbc.queryForObject("""
                 SELECT COUNT(*) FROM information_schema.tables
-                WHERE table_schema = DATABASE()
-                  AND table_name IN ('campus_school', 'campus_campus', 'campus_user_browse_preference')
-                """, Integer.class)).isEqualTo(3);
+                WHERE table_schema = DATABASE() AND table_name = 'campus_membership'
+                """, Integer.class)).isZero();
     }
 
     @Test

@@ -57,14 +57,12 @@ class M003MySqlMigrationIT {
     void emptyDatabaseShouldMigrateAndSecondRunShouldBeChecksumStable() {
         Flyway flyway = fixtureFlyway();
 
-        // Every current production migration plus the V900001 acceptance fixture must apply.
-        // Do not freeze this foundational test to a migration count: later modules append versions.
-        int migrationsExecuted = flyway.migrate().migrationsExecuted;
-        assertThat(migrationsExecuted).isPositive();
+        // V0001..V0005 plus the M00.03 V900001 acceptance fixture must all apply on an empty schema.
+        assertThat(flyway.migrate().migrationsExecuted).isEqualTo(6);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM campus_m00_03_transaction_example", Integer.class))
                 .isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success = 1", Integer.class))
-                .isEqualTo(migrationsExecuted);
+                .isEqualTo(6);
         assertThat(flyway.migrate().migrationsExecuted).isZero();
     }
 

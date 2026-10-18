@@ -124,23 +124,6 @@ describe('uni.request transport contract', () => {
     },
   )
 
-  it.each([
-    [401, '登录状态已失效'],
-    [403, '当前账号没有执行此操作的权限'],
-  ])('keeps HTTP %s distinct when the backend omits a message', async (statusCode, message) => {
-    send.mockImplementation((options) =>
-      options.success({ statusCode, data: { code: statusCode, traceId: `trace-${statusCode}` } }),
-    )
-    const { request, ApiError } = await import('./transport')
-    const error = await request('GET', '/context').catch((caught) => caught)
-    expect(error).toBeInstanceOf(ApiError)
-    expect(error).toMatchObject({
-      code: String(statusCode),
-      httpStatus: statusCode,
-      message: expect.stringContaining(message),
-    })
-  })
-
   it('classifies a timeout as unknown rather than assuming a submitted command failed', async () => {
     send.mockImplementation((options) => options.fail({ errMsg: 'request:fail timeout' }))
     const { request } = await import('./transport')

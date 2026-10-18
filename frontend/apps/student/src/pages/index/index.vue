@@ -4,7 +4,6 @@ import { state } from '@/state'
 import { api } from '@/services/api'
 import { go, requireLogin } from '@/utils'
 import type { Service } from '@/types'
-import type { Campus } from '@/types'
 import PageHeader from '@/components/PageHeader.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import BottomNav from '@/components/BottomNav.vue'
@@ -17,13 +16,6 @@ const query = ref(''),
   campusOpen = ref(false),
   switching = ref(false),
   error = ref('')
-const campusQuery = ref('')
-const directoryItems = ref<Campus[]>([])
-const directoryCursor = ref<string | null>(null)
-const directoryLoading = ref(false)
-const directoryError = ref('')
-const directoryLoaded = ref(false)
-let directoryRequest = 0
 const school = computed(() => state.campuses.find((c) => c.id === state.campusId))
 const services: { id: Service; name: string; icon: string }[] = [
   { id: 'market', name: '二手', icon: 'shop' },
@@ -41,58 +33,16 @@ const current = computed(() => services.find((s) => s.id === state.service)!)
 const course = computed(() =>
   state.courses.find((c) => c.day === 4 && c.weeks.includes(state.week)),
 )
-const campusOptions = computed(() =>
-  directoryLoaded.value ? directoryItems.value : state.campuses,
-)
-const contentState = computed(() => state.contentState[state.service])
-const contentError = computed(() => state.contentError[state.service])
 function select(id: Service) {
   state.service = id
   category.value = '全部'
   query.value = ''
 }
-async function openCampusDirectory() {
-  campusOpen.value = true
-  campusQuery.value = ''
-  await loadCampusDirectory(false)
-}
-async function loadCampusDirectory(append: boolean) {
-  if (append && directoryLoading.value) return
-  const requestId = ++directoryRequest
-  directoryLoading.value = true
-  directoryError.value = ''
-  try {
-    const page = await api.listCampuses(
-      campusQuery.value,
-      append ? directoryCursor.value || undefined : undefined,
-    )
-    if (requestId !== directoryRequest) return
-    directoryItems.value = append
-      ? [
-          ...directoryItems.value,
-          ...page.items.filter(
-            (item) => !directoryItems.value.some((existing) => existing.id === item.id),
-          ),
-        ]
-      : page.items
-    directoryCursor.value = page.nextCursor
-    directoryLoaded.value = true
-  } catch (e) {
-    if (requestId === directoryRequest)
-      directoryError.value = e instanceof Error ? e.message : '学校目录加载失败。'
-  } finally {
-    if (requestId === directoryRequest) directoryLoading.value = false
-  }
-}
-function clearCampusSearch() {
-  campusQuery.value = ''
-  void loadCampusDirectory(false)
-}
-async function switchCampus(campus: Campus) {
+async function switchCampus(id: string) {
   switching.value = true
   error.value = ''
   try {
-    await api.switchCampus(campus)
+    await api.switchCampus(id)
     campusOpen.value = false
     query.value = ''
     category.value = '全部'
@@ -110,7 +60,7 @@ function publish() {
   <view class="page" :class="{ 'large-type': state.fontScale > 1 }">
     <PageHeader title="校园" subtitle="让校园里的小事，简单一点">
       <template #right>
-        <button class="campus-button" @click="openCampusDirectory">
+        <button class="campus-button" @click="campusOpen = true">
           <AppIcon name="location" :size="15" />
           <text>{{ school?.shortName || '选择校区' }}</text>
           <AppIcon name="arrow-down" :size="12" />
@@ -175,18 +125,9 @@ function publish() {
         <button class="text-button" @click="api.refresh().catch(() => {})">重新加载</button>
       </view>
       <template v-else>
-        <view v-if="contentState === 'loading'" class="loading-bar">
-          正在加载{{ current.name }}…
-        </view>
-        <view v-else-if="contentState === 'error'" class="form-error">
-          <text>{{ contentError }}</text>
-          <button class="text-button" @click="api.refresh().catch(() => {})">重新加载</button>
-        </view>
-        <template v-else>
-          <MarketFeed v-if="state.service === 'market'" :query="query" :category="category" />
-          <ErrandFeed v-else-if="state.service === 'errand'" :query="query" :category="category" />
-          <ActivityFeed v-else :query="query" :category="category" />
-        </template>
+        <MarketFeed v-if="state.service === 'market'" :query="query" :category="category" />
+        <ErrandFeed v-else-if="state.service === 'errand'" :query="query" :category="category" />
+        <ActivityFeed v-else :query="query" :category="category" />
       </template>
     </view>
     <BottomNav active="campus" />
@@ -204,39 +145,14 @@ function publish() {
           </button>
         </view>
         <text class="hint">浏览和发布的内容会跟随校区切换。</text>
-        <view class="directory-search">
-          <input
-            v-model="campusQuery"
-            maxlength="160"
-            confirm-type="search"
-            placeholder="搜索学校名称"
-            aria-label="搜索学校名称"
-            @confirm="loadCampusDirectory(false)"
-          />
-          <button
-            v-if="campusQuery"
-            class="clear-search"
-            aria-label="清除学校搜索"
-            @click="clearCampusSearch"
-          >
-            <AppIcon name="close" :size="16" />
-          </button>
-          <button
-            class="directory-search-button"
-            :disabled="directoryLoading"
-            @click="loadCampusDirectory(false)"
-          >
-            搜索
-          </button>
-        </view>
         <button
-          v-for="c in campusOptions"
+          v-for="c in state.campuses"
           :key="c.id"
           class="campus-option"
           :disabled="switching || !c.enabled"
-          @click="switchCampus(c)"
+          @click="switchCampus(c.id)"
         >
-          <view class="campus-option-copy">
+          <view>
             <text>{{ c.school }} · {{ c.name }}</text>
             <text class="caption muted">
               {{ state.demo ? '虚构学校 · 演示校区' : c.enabled ? '已开放' : '暂未开放' }}
@@ -244,18 +160,6 @@ function publish() {
           </view>
           <AppIcon v-if="c.id === state.campusId" name="check" color="#07855d" />
         </button>
-        <text v-if="!directoryLoading && !campusOptions.length" class="directory-empty">
-          没有找到可选择的学校或校区。
-        </text>
-        <button
-          v-if="directoryCursor"
-          class="load-more"
-          :disabled="directoryLoading"
-          @click="loadCampusDirectory(true)"
-        >
-          {{ directoryLoading ? '正在加载…' : '加载更多学校' }}
-        </button>
-        <text v-if="directoryError" class="form-error">{{ directoryError }}</text>
         <text v-if="error" class="form-error">{{ error }}</text>
       </view>
     </wd-popup>
@@ -421,54 +325,8 @@ function publish() {
   border-radius: 0;
   font-size: calc(16px * var(--font-scale, 1));
 }
-.campus-option-copy {
-  min-width: 0;
-  flex: 1;
-  padding-right: 12px;
-}
-.campus-option-copy > text:first-child {
-  overflow-wrap: anywhere;
-  line-height: 1.55;
-}
 .campus-option text {
   display: block;
-}
-.directory-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-top: 15px;
-  padding: 0 10px;
-  border: 1px solid #e5eae4;
-  border-radius: 8px;
-  background: #f7f9f6;
-}
-.directory-search input {
-  flex: 1;
-  min-width: 0;
-  height: 44px;
-  font-size: calc(14px * var(--font-scale, 1));
-}
-.directory-search-button,
-.load-more {
-  flex-shrink: 0;
-  margin: 0;
-  background: transparent;
-  color: var(--color-primary);
-  font-size: calc(13px * var(--font-scale, 1));
-}
-.load-more {
-  width: 100%;
-  min-height: 44px;
-  border-top: 1px solid #edf0eb;
-}
-.directory-empty {
-  display: block;
-  padding: 24px 0;
-  text-align: center;
-  color: var(--color-muted);
-  font-size: calc(13px * var(--font-scale, 1));
 }
 .campus-option .caption {
   margin-top: 6px;

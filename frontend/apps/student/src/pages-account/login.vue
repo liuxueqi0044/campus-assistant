@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { state } from '@/state'
 import { api } from '@/services/api'
 import { back } from '@/utils'
@@ -9,7 +9,6 @@ import AppIcon from '@/components/AppIcon.vue'
 
 const busy = ref(false)
 const error = ref('')
-const wechatLoginAvailable = computed(() => state.demo || api.canWechatLogin())
 async function login() {
   if (busy.value) return
   busy.value = true
@@ -62,30 +61,14 @@ async function login() {
       </view>
       <view v-if="state.user.loggedIn" class="signed-in surface">
         <text class="signed-in-title">你已登录{{ state.demo ? '演示账号' : '' }}</text>
-        <text class="muted">
-          {{ state.user.name || '已登录账号' }} · {{ state.user.school || '未选择学校' }}
-        </text>
+        <text class="muted">{{ state.user.name }} · {{ state.user.school }}</text>
         <button class="btn btn-primary login-action" @click="back">返回继续浏览</button>
       </view>
       <view v-else class="login-actions">
         <view v-if="error" class="form-error section">{{ error }}</view>
-        <button
-          class="btn btn-primary login-action"
-          :disabled="busy || !wechatLoginAvailable"
-          @click="login"
-        >
+        <button class="btn btn-primary login-action" :disabled="busy" @click="login">
           <AppIcon name="user" :size="20" />
-          <text>
-            {{
-              busy
-                ? '正在登录…'
-                : state.demo
-                  ? '进入演示账号'
-                  : wechatLoginAvailable
-                    ? '微信登录'
-                    : '请在微信小程序中登录'
-            }}
-          </text>
+          <text>{{ busy ? '正在登录…' : state.demo ? '进入演示账号' : '微信登录' }}</text>
         </button>
         <button class="guest-button" :disabled="busy" @click="back">先随便看看</button>
       </view>
@@ -94,13 +77,9 @@ async function login() {
           使用预设演示身份，不会调用微信授权。
           <text class="line-break">请勿在演示中提交真实证件或联系方式。</text>
         </text>
-        <text v-else-if="wechatLoginAvailable">
+        <text v-else>
           微信登录仅用于建立账号。
           <text class="line-break">学生认证需要单独提交，不代表学校官方背书。</text>
-        </text>
-        <text v-else>
-          H5 当前只支持公开浏览。
-          <text class="line-break">不会生成或伪造微信 code，请在微信小程序中完成登录。</text>
         </text>
       </view>
     </view>

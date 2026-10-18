@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Explicit M01 A-level acceptance gates for identity and membership boundaries.
+"""Explicit M01.01 A-level acceptance gate for the WeChat identity binding boundary.
 
 It deliberately proves only local MySQL storage and deterministic module behavior. Live WeChat,
 Valkey-backed server startup, and token delivery are reported as separate B/C evidence rather than
@@ -27,7 +27,7 @@ from typing import Mapping, Sequence
 ROOT = Path(__file__).resolve().parents[2]
 BACKEND = ROOT / "backend"
 IDENTITY = BACKEND / "campus-module-identity"
-M0101_REQUIRED_TESTS = (
+REQUIRED_TESTS = (
     "WechatIdentityBindingServiceTest",
     "LoginApplicationServiceTest",
     "WechatLoginControllerTest",
@@ -35,55 +35,12 @@ M0101_REQUIRED_TESTS = (
     "PlatformTenantExecutorTest",
     "M0101MySqlIntegrationTest",
 )
-M0103_REQUIRED_TESTS = (
-    "MembershipServiceTest",
-    "MembershipVerificationConfigurationTest",
-    "MembershipVerificationExceptionTest",
-    "VerificationApplicationServiceTest",
-    "MembershipTest",
-    "VerificationAttemptTest",
-    "MembershipVerificationControllerTest",
-    "VerificationReviewControllerTest",
-    "M0103MySqlIntegrationTest",
-)
-M0101_MYSQL_ENV_ALIASES = {
+MYSQL_ENV_ALIASES = {
     "url": ("CAMPUS_M0101_MYSQL_URL", "CAMPUS_MYSQL_IT_URL"),
     "username": ("CAMPUS_M0101_MYSQL_USERNAME", "CAMPUS_MYSQL_IT_USERNAME"),
     "password": ("CAMPUS_M0101_MYSQL_PASSWORD", "CAMPUS_MYSQL_IT_PASSWORD"),
 }
-M0103_MYSQL_ENV_ALIASES = {
-    "url": ("CAMPUS_M0103_MYSQL_URL",),
-    "username": ("CAMPUS_M0103_MYSQL_USERNAME",),
-    "password": ("CAMPUS_M0103_MYSQL_PASSWORD",),
-}
-MODULE_SPECS = {
-    "M01.01": {
-        "tests": M0101_REQUIRED_TESTS,
-        "mysql_aliases": M0101_MYSQL_ENV_ALIASES,
-        "env_prefix": "CAMPUS_M0101_MYSQL",
-        "external_unverified": [
-            "B: real member/OAuth2 persistence and token issuance integration",
-            "C: real WeChat code2session, timeout behavior, and mobile client login/logout",
-        ],
-        "cleanup": "M0101MySqlIntegrationTest cleans only the caller-provided disposable schema before and after each case.",
-    },
-    "M01.03": {
-        "tests": M0103_REQUIRED_TESTS,
-        "mysql_aliases": M0103_MYSQL_ENV_ALIASES,
-        "env_prefix": "CAMPUS_M0103_MYSQL",
-        "external_unverified": [
-            "B: real evidence/media ownership adapter supplied by M02",
-            "B: real school-scoped reviewer authorization supplied by M01.04",
-        ],
-        "cleanup": "M0103MySqlIntegrationTest cleans only the dedicated disposable M01.03 schema before and after each case.",
-    },
-}
-# Compatibility aliases retained for existing M01.01 callers and self-tests.
-REQUIRED_TESTS = M0101_REQUIRED_TESTS
-MYSQL_ENV_ALIASES = M0101_MYSQL_ENV_ALIASES
-MYSQL_ENV_NAMES = frozenset(
-    name for spec in MODULE_SPECS.values() for aliases in spec["mysql_aliases"].values() for name in aliases
-)
+MYSQL_ENV_NAMES = frozenset(name for aliases in MYSQL_ENV_ALIASES.values() for name in aliases)
 SENSITIVE_ENV_NAME = re.compile(r"(?i)(password|secret|token|key|auth|credential)")
 DIAGNOSTIC_LIMIT = 6000
 
@@ -134,21 +91,19 @@ def dependency_summary() -> dict[str, dict[str, object]]:
             for path in paths if path.is_file()}
 
 
-def configured_mysql(environment: Mapping[str, str], module: str = "M01.01") -> tuple[bool, dict[str, str]]:
+def configured_mysql(environment: Mapping[str, str]) -> tuple[bool, dict[str, str]]:
     selected: dict[str, str] = {}
-    for field, aliases in MODULE_SPECS[module]["mysql_aliases"].items():
+    for field, aliases in MYSQL_ENV_ALIASES.items():
         selected[field] = next((environment[name].strip() for name in aliases if environment.get(name, "").strip()), "")
     return all(selected.values()), selected
 
 
-def runner_environment(environment: Mapping[str, str], selected: Mapping[str, str],
-                       module: str = "M01.01") -> dict[str, str]:
+def runner_environment(environment: Mapping[str, str], selected: Mapping[str, str]) -> dict[str, str]:
     result = dict(environment)
-    prefix = MODULE_SPECS[module]["env_prefix"]
     result.update({
-        f"{prefix}_URL": selected["url"],
-        f"{prefix}_USERNAME": selected["username"],
-        f"{prefix}_PASSWORD": selected["password"],
+        "CAMPUS_M0101_MYSQL_URL": selected["url"],
+        "CAMPUS_M0101_MYSQL_USERNAME": selected["username"],
+        "CAMPUS_M0101_MYSQL_PASSWORD": selected["password"],
     })
     tools = ROOT.parent / ".tools"
     if not result.get("JAVA_HOME"):
@@ -196,46 +151,13 @@ def parse_surefire(start_ns: int) -> dict[str, SuiteEvidence]:
     return reports
 
 
-def parse_surefire_failures(start_ns: int, environment: Mapping[str, str]) -> list[dict[str, str]]:
-    failures: list[dict[str, str]] = []
-    directory = IDENTITY / "target" / "surefire-reports"
-    if not directory.is_dir():
-        return failures
-    for path in directory.glob("TEST-*.xml"):
-        if path.stat().st_mtime_ns < start_ns:
-            continue
-        try:
-            root = ET.parse(path).getroot()
-        except (OSError, ET.ParseError):
-            continue
-        suite = root.attrib.get("name", path.stem.removeprefix("TEST-")).rsplit(".", 1)[-1]
-        for case in root.findall("testcase"):
-            outcome = case.find("failure")
-            if outcome is None:
-                outcome = case.find("error")
-            if outcome is None:
-                continue
-            detail = "\n".join(part for part in (
-                outcome.attrib.get("message", ""), outcome.text or "",
-            ) if part).strip()
-            failures.append({
-                "suite": suite,
-                "test": case.attrib.get("name", "unknown"),
-                "outcome": outcome.tag,
-                "type": outcome.attrib.get("type", ""),
-                "detail": sanitize(detail, environment)[-2000:],
-            })
-    return failures
-
-
-def evaluate(command: CommandResult, suites: Mapping[str, SuiteEvidence], mysql_ready: bool,
-             required_tests: Sequence[str] = REQUIRED_TESTS) -> tuple[str, list[str]]:
+def evaluate(command: CommandResult, suites: Mapping[str, SuiteEvidence], mysql_ready: bool) -> tuple[str, list[str]]:
     reasons: list[str] = []
     if command.exception:
         reasons.append("runner_exception")
     if command.returncode != 0:
         reasons.append(f"maven_exit_{command.returncode}")
-    for name in required_tests:
+    for name in REQUIRED_TESTS:
         suite = suites.get(name)
         if suite is None:
             reasons.append(f"required_test_missing:{name}")
@@ -258,16 +180,12 @@ def run(command: Sequence[str], environment: Mapping[str, str]) -> CommandResult
         return CommandResult(255, "", "", type(exc).__name__)
 
 
-def sanitize(text: str, environment: Mapping[str, str]) -> str:
+def diagnostics(command: CommandResult, environment: Mapping[str, str]) -> str:
+    text = "\n".join(part for part in (command.stdout, command.stderr) if part).strip()
     for name, value in environment.items():
         if value and len(value) >= 4 and (name in MYSQL_ENV_NAMES or SENSITIVE_ENV_NAME.search(name)):
             text = text.replace(value, "<redacted>")
-    return re.sub(r"(?i)(password|passwd|secret|token|authorization)\s*([:=])\s*[^\s,;]+",
-                  r"\1\2<redacted>", text)
-
-
-def diagnostics(command: CommandResult, environment: Mapping[str, str]) -> str:
-    text = sanitize("\n".join(part for part in (command.stdout, command.stderr) if part).strip(), environment)
+    text = re.sub(r"(?i)(password|passwd|secret|token|authorization)\s*([:=])\s*[^\s,;]+", r"\1\2<redacted>", text)
     lines = text.splitlines()
     if len(lines) > 40:
         lines = ["... <diagnostic truncated> ..."] + lines[-39:]
@@ -280,40 +198,38 @@ def write_report(path: Path, payload: Mapping[str, object]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def acceptance(environment: Mapping[str, str], report_path: Path, module: str = "M01.01") -> int:
-    spec = MODULE_SPECS[module]
-    required_tests: Sequence[str] = spec["tests"]
-    mysql_ready, selected = configured_mysql(environment, module)
+def acceptance(environment: Mapping[str, str], report_path: Path) -> int:
+    mysql_ready, selected = configured_mysql(environment)
     command = CommandResult(0, "", "")
     suites: dict[str, SuiteEvidence] = {}
-    suite_failures: list[dict[str, str]] = []
-    actual_environment = runner_environment(environment, selected, module)
+    actual_environment = runner_environment(environment, selected)
     if mysql_ready:
         started_ns = time.time_ns()
         command = run([
             maven_command(actual_environment), "-B", "-pl", "campus-module-identity", "-am",
             "-Dsurefire.failIfNoSpecifiedTests=false", "-DfailIfNoTests=false",
-            "-Dtest=" + ",".join(required_tests), "test",
+            "-Dtest=" + ",".join(REQUIRED_TESTS), "test",
         ], actual_environment)
         suites = parse_surefire(started_ns)
-        suite_failures = parse_surefire_failures(started_ns, actual_environment)
-        status, reasons = evaluate(command, suites, mysql_ready, required_tests)
+        status, reasons = evaluate(command, suites, mysql_ready)
     else:
         # Do not pretend empty Surefire output is test evidence. The unavailable database is an
         # explicit external prerequisite, so this is distinguishable from a configured run that
         # somehow produced no selected test reports (which evaluate() marks as FAIL).
         status, reasons = "EXTERNAL_NOT_READY", ["mysql_external_not_ready"]
     payload = {
-        "schemaVersion": 1, "generatedAt": now_utc(), "module": module, "level": "A",
+        "schemaVersion": 1, "generatedAt": now_utc(), "module": "M01.01", "level": "A",
         "status": status, "sourceSha": git_sha(), "migrations": migration_summary(),
-        "dependencySummary": dependency_summary(), "requiredTests": list(required_tests),
+        "dependencySummary": dependency_summary(), "requiredTests": list(REQUIRED_TESTS),
         "suites": {name: asdict(suite) for name, suite in suites.items()},
-        "suiteFailures": suite_failures,
         "mavenExitCode": command.returncode, "launcherException": bool(command.exception),
         "mavenDiagnostic": diagnostics(command, actual_environment), "mysqlConfigured": mysql_ready,
         "valkeyRequired": False, "unverified": reasons,
-        "externalUnverified": spec["external_unverified"],
-        "cleanup": spec["cleanup"],
+        "externalUnverified": [
+            "B: real member/OAuth2 persistence and token issuance integration",
+            "C: real WeChat code2session, timeout behavior, and mobile client login/logout",
+        ],
+        "cleanup": "M0101MySqlIntegrationTest cleans only the caller-provided disposable schema before and after each case.",
     }
     write_report(report_path, payload)
     print(status)
@@ -321,8 +237,6 @@ def acceptance(environment: Mapping[str, str], report_path: Path, module: str = 
         print(f"- {reason}")
     if status == "FAIL":
         print(diagnostics(command, actual_environment))
-        for failure in suite_failures:
-            print(f"{failure['suite']}.{failure['test']} [{failure['outcome']}]: {failure['detail']}")
     return 0 if status == "PASS" else 2
 
 
@@ -334,24 +248,21 @@ def self_test() -> int:
     assert evaluate(good, {**all_suites, REQUIRED_TESTS[-1]: SuiteEvidence(REQUIRED_TESTS[-1], 0, 0, 0, 0, "fixture.xml")}, True)[0] == "FAIL"
     assert evaluate(good, {**all_suites, REQUIRED_TESTS[-1]: SuiteEvidence(REQUIRED_TESTS[-1], 1, 0, 0, 1, "fixture.xml")}, True)[0] == "FAIL"
     assert evaluate(CommandResult(1, "", ""), all_suites, True)[0] == "FAIL"
-    m0103_suites = {name: SuiteEvidence(name, 1, 0, 0, 0, "fixture.xml") for name in M0103_REQUIRED_TESTS}
-    assert evaluate(good, m0103_suites, True, M0103_REQUIRED_TESTS)[0] == "PASS"
     print("self-test passed: missing MySQL, zero/skipped tests, and Maven failures cannot become green")
     return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--module", choices=tuple(MODULE_SPECS), default="M01.01")
+    parser.add_argument("--module", choices=("M01.01",), default="M01.01")
     parser.add_argument("--level", choices=("A",), default="A")
-    parser.add_argument("--report", type=Path, default=None)
+    parser.add_argument("--report", type=Path, default=ROOT / "artifacts" / "acceptance" / "m01.01-a.json")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
-    report = args.report or ROOT / "artifacts" / "acceptance" / f"{args.module.lower().replace('.', '-')}-a.json"
-    report = report if report.is_absolute() else ROOT / report
-    return acceptance(os.environ, report, args.module)
+    report = args.report if args.report.is_absolute() else ROOT / args.report
+    return acceptance(os.environ, report)
 
 
 if __name__ == "__main__":

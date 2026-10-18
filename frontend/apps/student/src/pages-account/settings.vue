@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { state } from '@/state'
 import { api } from '@/services/api'
 import { go } from '@/utils'
@@ -11,10 +11,6 @@ const confirmAction = ref<'logout' | 'reset' | null>(null)
 const busy = ref(false)
 const error = ref('')
 const success = ref('')
-const sessionExpiryText = computed(() => {
-  if (!state.sessionExpiresAt) return ''
-  return state.sessionExpiresAt.replace('T', ' ').replace(/:\d{2}(?:Z|[+-]\d{2}:\d{2})$/, '')
-})
 function openConfirmation(action: 'logout' | 'reset') {
   confirmAction.value = action
   error.value = ''
@@ -138,14 +134,11 @@ async function confirm() {
       <text class="setting-group-label">账号</text>
       <view class="settings-card surface account-card">
         <view class="account-row">
-          <text>{{ state.user.loggedIn ? state.user.name || '已登录账号' : '当前未登录' }}</text>
+          <text>{{ state.user.loggedIn ? state.user.name : '当前未登录' }}</text>
           <text class="account-state">
             {{ state.demo ? '演示模式' : state.user.loggedIn ? '已登录' : '访客' }}
           </text>
         </view>
-        <text v-if="state.user.loggedIn && sessionExpiryText" class="session-expiry">
-          当前会话有效至 {{ sessionExpiryText }}（仅保存在本次运行中）
-        </text>
         <button
           v-if="state.user.loggedIn"
           class="account-action"
@@ -165,7 +158,11 @@ async function confirm() {
             <text class="setting-title">重新开始体验</text>
             <text class="setting-description">清除新增演示内容，恢复初始状态与偏好</text>
           </view>
-          <button class="reset-button" :disabled="busy" @click="openConfirmation('reset')">
+          <button
+            class="reset-button"
+            :disabled="busy"
+            @click="openConfirmation('reset')"
+          >
             重置演示数据
           </button>
         </view>
@@ -364,14 +361,6 @@ async function confirm() {
   line-height: 1.8;
   border-radius: 0;
 }
-.session-expiry {
-  display: block;
-  margin: -7px 0 13px;
-  color: #929d89;
-  font-size: calc(12px * var(--font-scale, 1));
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
 .account-action::after,
 .reset-button::after {
   border: 0;
@@ -443,3 +432,4 @@ async function confirm() {
   font-size: calc(12px * var(--font-scale, 1));
 }
 </style>
+

@@ -36,20 +36,6 @@ export const state = reactive({
   demo: isDemo,
   networkState: 'ready' as 'ready' | 'loading' | 'error',
   networkError: '',
-  contentState: {
-    market: 'ready',
-    errand: 'ready',
-    activity: 'ready',
-  } as Record<Service, 'ready' | 'loading' | 'error'>,
-  contentError: {
-    market: '',
-    errand: '',
-    activity: '',
-  } as Record<Service, string>,
-  privateState: 'ready' as 'ready' | 'loading' | 'error',
-  privateError: '',
-  sessionExpiresAt: '',
-  profileCompletion: null as boolean | null,
 })
 interface DemoPrivateSnapshot {
   user: User
@@ -82,8 +68,6 @@ export function clearPrivateWorkspace() {
     delete activity.waitlistPosition
   }
   for (const product of state.products) delete product.buyerConfirmed
-  state.privateState = 'ready'
-  state.privateError = ''
 }
 export function suspendDemoSession() {
   if (!isDemo) throw new Error('仅演示模式可以保存演示会话。')
@@ -148,11 +132,5 @@ export function replaceDemo() {
     notifications: true,
     networkState: 'ready',
     networkError: '',
-    contentState: { market: 'ready', errand: 'ready', activity: 'ready' },
-    contentError: { market: '', errand: '', activity: '' },
-    privateState: 'ready',
-    privateError: '',
-    sessionExpiresAt: '',
-    profileCompletion: null,
   })
 }

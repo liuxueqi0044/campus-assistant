@@ -201,13 +201,6 @@
             <artifactId>yudao-spring-boot-starter-protection</artifactId>
         </dependency>
 
-        <!-- M01.01 B-level full-server integration test harness. -->
-        <dependency>
-            <groupId>cn.iocoder.boot</groupId>
-            <artifactId>yudao-spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

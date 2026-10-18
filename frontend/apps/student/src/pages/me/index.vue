@@ -40,17 +40,14 @@ function openRecords(type: string) {
     </PageHeader>
     <view class="content">
       <DemoNotice />
-      <view v-if="state.user.loggedIn && state.privateState === 'error'" class="form-error section">
-        {{ state.privateError }}
-      </view>
       <view class="profile-card surface">
         <view class="profile-main" @click="!state.user.loggedIn && go('/pages-account/login')">
           <view class="profile-avatar">
-            {{ state.user.loggedIn ? state.user.name.slice(0, 1) || '你' : '你' }}
+            {{ state.user.loggedIn ? state.user.name.slice(0, 1) : '你' }}
           </view>
           <view class="profile-copy">
             <text class="profile-name">
-              {{ state.user.loggedIn ? state.user.name || '已登录账号' : '欢迎来到校园' }}
+              {{ state.user.loggedIn ? state.user.name : '欢迎来到校园' }}
             </text>
             <text class="profile-campus">
               {{

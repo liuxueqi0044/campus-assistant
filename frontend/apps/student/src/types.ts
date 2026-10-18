@@ -183,16 +183,6 @@ export interface SchoolsResponseDTO {
   items: SchoolContextDTO[]
   nextCursor?: string | null
 }
-export interface WechatLoginDTO {
-  accessToken: string
-  expiresAt?: string
-  userId?: string
-  profileCompletion?: boolean
-}
-export interface CampusDirectoryPage {
-  items: Campus[]
-  nextCursor: string | null
-}
 export interface Activity {
   ownerId?: string
 }

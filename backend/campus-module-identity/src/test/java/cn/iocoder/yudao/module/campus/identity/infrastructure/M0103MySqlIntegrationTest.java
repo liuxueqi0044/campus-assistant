@@ -9,10 +9,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
-import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -38,13 +35,8 @@ class M0103MySqlIntegrationTest {
     @BeforeEach
     void setUp() {
         fixtureFlyway().clean();
-        fixtureFlyway().migrate();
+        assertThat(fixtureFlyway().migrate().migrationsExecuted).isEqualTo(6);
         jdbc = jdbc();
-        assertThat(jdbc.queryForObject("""
-                SELECT COUNT(*) FROM information_schema.tables
-                WHERE table_schema = DATABASE()
-                  AND table_name IN ('campus_verification', 'campus_verification_review', 'campus_membership')
-                """, Integer.class)).isEqualTo(3);
         jdbc.update("""
                 INSERT INTO campus_school (id, code, name, timezone, status, config_version)
                 VALUES (1, 'S1', 'School One', 'Asia/Shanghai', 'ENABLED', 1),
@@ -143,23 +135,14 @@ class M0103MySqlIntegrationTest {
     }
 
     private long insertPendingVerification(long userId, long schoolId, long campusId) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(connection -> {
-            var statement = connection.prepareStatement("""
-                    INSERT INTO campus_verification
-                        (user_id, school_id, campus_id, method, evidence_refs_json, proof_reference,
-                         status, version, submitted_at)
-                    VALUES (?, ?, ?, 'STUDENT_CARD', JSON_ARRAY('asset-fixture'), 'proof-fixture',
-                            'PENDING', 1, '2026-09-17 09:00:00.000')
-                    """, Statement.RETURN_GENERATED_KEYS);
-            statement.setLong(1, userId);
-            statement.setLong(2, schoolId);
-            statement.setLong(3, campusId);
-            return statement;
-        }, keyHolder);
-        Number generatedId = keyHolder.getKey();
-        assertThat(generatedId).as("generated verification id").isNotNull();
-        return generatedId.longValue();
+        jdbc.update("""
+                INSERT INTO campus_verification
+                    (user_id, school_id, campus_id, method, evidence_refs_json, proof_reference,
+                     status, version, submitted_at)
+                VALUES (?, ?, ?, 'STUDENT_CARD', JSON_ARRAY('asset-fixture'), 'proof-fixture',
+                        'PENDING', 1, '2026-09-17 09:00:00.000')
+                """, userId, schoolId, campusId);
+        return jdbc.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
     }
 
     private void approveVerification(long verificationId) {

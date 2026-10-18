@@ -10,7 +10,6 @@ import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.module.campus.common.api.CampusApiException;
 import cn.iocoder.yudao.module.campus.common.api.CampusErrorCodes;
-import cn.iocoder.yudao.module.campus.identity.application.port.AccountStatusPort;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
 import cn.iocoder.yudao.module.member.service.user.MemberUserService;
 import cn.iocoder.yudao.module.member.service.auth.MemberAuthService;
@@ -25,7 +24,7 @@ import org.springframework.stereotype.Component;
 /** Reuses upstream member records, member-only OAuth2 tokens and audit logs. */
 @Component
 @RequiredArgsConstructor
-public class MemberAccountAdapter implements AccountStatusPort {
+public class MemberAccountAdapter {
 
     private static final String DEFAULT_WECHAT_NICKNAME = "微信用户";
 
@@ -53,11 +52,6 @@ public class MemberAccountAdapter implements AccountStatusPort {
             throw new CampusApiException(CampusErrorCodes.ACCOUNT_DISABLED);
         }
         return member;
-    }
-
-    @Override
-    public void assertActive(long userId) {
-        getRequiredActiveMember(userId);
     }
 
     /** Called only after the identity-binding transaction has completed successfully. */

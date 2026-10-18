@@ -6,7 +6,6 @@ export class ApiError extends Error {
     public requiredAction?: 'RETRY' | 'USER_FIX' | 'OPERATOR',
     public currentVersion?: string,
     public currentState?: string,
-    public httpStatus?: number,
   ) {
     super(message)
   }
@@ -22,16 +21,6 @@ export function request<T>(
   data?: unknown,
   key?: string,
 ): Promise<T> {
-  return requestWithBearer(method, path, data, key, accessToken)
-}
-
-function requestWithBearer<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-  path: string,
-  data: unknown,
-  key: string | undefined,
-  bearerToken: string,
-): Promise<T> {
   if (!base)
     return Promise.reject(
       new ApiError('CONFIG_MISSING', '尚未配置后端地址，请设置 VITE_API_BASE_URL。'),
@@ -44,7 +33,7 @@ function requestWithBearer<T>(
       timeout: 12000,
       header: {
         'Content-Type': 'application/json',
-        ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...(key ? { 'Idempotency-Key': key } : {}),
       },
       success(res) {
@@ -58,28 +47,19 @@ function requestWithBearer<T>(
         const successCode = body?.code === 0 || body?.code === '0'
         if (res.statusCode >= 200 && res.statusCode < 300 && successCode) resolve(body.data as T)
         else {
-          const detail = body?.data as
-            | {
-                requiredAction?: 'RETRY' | 'USER_FIX' | 'OPERATOR'
-                currentVersion?: string
-                currentState?: string
-              }
-            | undefined
-          const fallbackMessage =
-            res.statusCode === 401
-              ? '登录状态已失效，请重新登录。'
-              : res.statusCode === 403
-                ? '当前账号没有执行此操作的权限。'
-                : '请求未完成，请稍后重试。'
+          const detail = body?.data as {
+            requiredAction?: 'RETRY' | 'USER_FIX' | 'OPERATOR'
+            currentVersion?: string
+            currentState?: string
+          } | undefined
           reject(
             new ApiError(
               String(successCode ? res.statusCode : body?.code || res.statusCode),
-              body?.message || body?.msg || fallbackMessage,
+              body?.message || body?.msg || '请求未完成，请稍后重试。',
               body?.traceId,
               detail?.requiredAction,
               detail?.currentVersion,
               detail?.currentState,
-              res.statusCode,
             ),
           )
         }
@@ -94,14 +74,6 @@ function requestWithBearer<T>(
       },
     }),
   )
-}
-
-/** Clears the shared token immediately; the returned closure can revoke only that captured token. */
-export function prepareLogoutRequest() {
-  const tokenToRevoke = accessToken
-  accessToken = ''
-  return () =>
-    requestWithBearer<unknown>('POST', '/auth/logout', undefined, undefined, tokenToRevoke)
 }
 let counter = 0
 export const commandKey = () =>

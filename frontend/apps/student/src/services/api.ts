@@ -6,11 +6,10 @@ import {
   suspendDemoSession,
   restoreDemoSession,
 } from '@/state'
-import { request, setToken, commandKey, ApiError, prepareLogoutRequest } from './transport'
+import { request, setToken, commandKey, ApiError } from './transport'
 import type {
   Activity,
   Campus,
-  CampusDirectoryPage,
   CampusContextDTO,
   ContextDTO,
   ContextUserDTO,
@@ -22,7 +21,6 @@ import type {
   SchoolContextDTO,
   SchoolsResponseDTO,
   User,
-  WechatLoginDTO,
 } from '@/types'
 const pause = () => new Promise((r) => setTimeout(r, 180))
 const requireUser = () => {
@@ -41,9 +39,6 @@ const pending = new Map<string, Promise<unknown>>()
 const uncertainKeys = new Map<string, string>()
 let generation = 0
 let sessionGeneration = 0
-let contextSelectionGeneration = 0
-let contextWriteTail: Promise<void> = Promise.resolve()
-let authenticatedUserId = ''
 const assertSession = (stamp: number, actorId?: string) => {
   if (
     stamp !== sessionGeneration ||
@@ -57,7 +52,6 @@ const assertSession = (stamp: number, actorId?: string) => {
 function invalidateSession() {
   sessionGeneration++
   generation++
-  contextSelectionGeneration++
   pending.clear()
   uncertainKeys.clear()
 }
@@ -126,114 +120,62 @@ async function refresh() {
       // The directory is public source-of-truth for the campus picker. The
       // context endpoint only describes the current selection and session;
       // it is intentionally not expected to repeat the whole directory.
-      const [rawContext, directory] = await Promise.all([
-        request<ContextDTO>('GET', '/context'),
-        request<SchoolsResponseDTO>('GET', '/schools'),
-      ])
+      const rawContext = await request<ContextDTO>('GET', '/context')
+      const directory = await request<SchoolsResponseDTO>('GET', '/schools')
       const ctx = normalizeContext(rawContext, directory)
       if (!current()) return
-      if (!ctx.user.loggedIn && (state.user.loggedIn || authenticatedUserId)) clearLocalAuth()
-      const previousCampusId = state.campusId
       Object.assign(state, ctx)
-      if (previousCampusId !== state.campusId) clearPublicContent()
       if (!state.campusId) {
-        clearPublicContent()
+        state.products = []
+        state.errands = []
+        state.activities = []
         state.networkState = 'error'
         state.networkError = '暂无可用校区，校园内容暂时无法加载。'
         return
       }
-      // Context is a usable global capability even while later business APIs
-      // are not deployed. Public-feed failures are isolated per tab below.
-      state.networkState = 'ready'
-      await refreshPublicContent(current)
+      const q = `?campusId=${encodeURIComponent(state.campusId)}&limit=50`
+      const [products, errands, activities] = await Promise.all([
+        request<{ items: Product[] }>('GET', '/market/listings' + q),
+        request<{ items: Errand[] }>('GET', '/errands/available' + q),
+        request<{ items: Activity[] }>('GET', '/activities' + q),
+      ])
       if (!current()) return
+      state.products = products.items
+      state.errands = errands.items
+      state.activities = activities.items
       if (state.user.loggedIn) {
         const actorId = state.user.id
-        state.privateState = 'loading'
-        state.privateError = ''
-        try {
-          const privateData = await request<{
-            courses: Course[]
-            conversations: Conversation[]
-            notices: Notice[]
-            favorites: string[]
-          }>('GET', '/me/workspace')
-          if (!current() || state.user.id !== actorId || !state.user.loggedIn) return
-          Object.assign(state, privateData)
-          state.privateState = 'ready'
-        } catch (error) {
-          if (!current() || state.user.id !== actorId || !state.user.loggedIn) return
-          state.privateState = 'error'
-          state.privateError = errorMessage(error, '个人记录接口暂不可用，请稍后重试。')
-        }
-      } else {
-        state.privateState = 'ready'
-        state.privateError = ''
+        const privateData = await request<{
+          courses: Course[]
+          conversations: Conversation[]
+          notices: Notice[]
+          favorites: string[]
+        }>('GET', '/me/workspace')
+        if (!current() || state.user.id !== actorId || !state.user.loggedIn) return
+        Object.assign(state, privateData)
       }
     }
     if (current()) state.networkState = 'ready'
   } catch (e) {
     if (current()) {
-      if (e instanceof ApiError && e.httpStatus === 401 && state.user.loggedIn) clearLocalAuth()
       state.networkState = 'error'
-      state.networkError = errorMessage(e, '加载失败')
+      state.networkError = e instanceof Error ? e.message : '加载失败'
     }
     throw e
   }
 }
 export const api = {
   refresh,
-  canWechatLogin() {
-    return isDemo || isWechatMiniProgram()
-  },
-  async listCampuses(keyword = '', cursor?: string): Promise<CampusDirectoryPage> {
-    const normalizedKeyword = keyword.trim()
-    if (normalizedKeyword.length > 160)
-      throw new ApiError('REQUEST_INVALID', '学校名称最多输入 160 个字符。')
-    if (isDemo) {
-      const items = state.campuses.filter(
-        (campus) => !normalizedKeyword || campus.school.includes(normalizedKeyword),
-      )
-      return { items, nextCursor: null }
-    }
-    const params: string[] = []
-    if (normalizedKeyword) params.push(`keyword=${encodeURIComponent(normalizedKeyword)}`)
-    if (cursor) params.push(`cursor=${encodeURIComponent(cursor)}`)
-    const directory = await request<SchoolsResponseDTO>(
-      'GET',
-      `/schools${params.length ? `?${params.join('&')}` : ''}`,
-    )
-    const normalized = normalizeContext({}, directory)
-    return { items: normalized.campuses, nextCursor: directory.nextCursor || null }
-  },
-  async switchCampus(selection: string | Campus) {
-    const campus = typeof selection === 'string' ? find(state.campuses, selection) : selection
-    const id = campus.id
-    if (!campus.enabled) throw new Error('该校区暂未开放。')
+  async switchCampus(id: string) {
+    if (!find(state.campuses, id).enabled) throw new Error('该校区暂未开放。')
     if (isDemo) {
       state.campusId = id
       await refresh()
     } else {
-      if (!campus.schoolId)
-        throw new ApiError('CONTEXT_INVALID', '校区缺少所属学校信息，请刷新后重试。')
-      const intent = ++contextSelectionGeneration
-      const session = sessionGeneration
-      const assertCurrentSelection = () => {
-        if (intent !== contextSelectionGeneration || session !== sessionGeneration)
-          throw new ApiError('CONTEXT_SUPERSEDED', '已选择新的校区，本次旧请求结果未应用。')
-      }
-      const write = contextWriteTail.then(async () => {
-        assertCurrentSelection()
-        await request('PUT', '/context', { schoolId: campus.schoolId, campusId: id })
-      })
-      contextWriteTail = write.then(
-        () => undefined,
-        () => undefined,
-      )
-      await write
-      assertCurrentSelection()
+      const campus = find(state.campuses, id)
+      if (!campus.schoolId) throw new ApiError('CONTEXT_INVALID', '校区缺少所属学校信息，请刷新后重试。')
+      await request('PUT', '/context', { schoolId: campus.schoolId, campusId: id })
       await refresh()
-      assertCurrentSelection()
     }
   },
   async login() {
@@ -246,94 +188,33 @@ export const api = {
       restoreDemoSession()
       return
     }
-    if (!isWechatMiniProgram())
-      throw new ApiError('WECHAT_LOGIN_UNAVAILABLE', 'H5 暂不支持微信登录，请在微信小程序中打开。')
     const code = await new Promise<string>((resolve, reject) =>
       uni.login({
         provider: 'weixin',
-        success: (r) =>
-          r.code
-            ? resolve(r.code)
-            : reject(new ApiError('WECHAT_CODE_MISSING', '微信未返回登录凭证，请重试。')),
-        fail: () =>
-          reject(new ApiError('WECHAT_LOGIN_FAILED', '微信授权没有完成，请在小程序中重试。')),
+        success: (r) => resolve(r.code),
+        fail: () => reject(new Error('请在微信小程序中登录。')),
       }),
     )
     assertSession(stamp)
     const clientContext = state.campusId ? { campusId: state.campusId } : undefined
-    const result = await request<WechatLoginDTO>('POST', '/auth/wechat/login', {
+    const result = await request<{ accessToken: string }>('POST', '/auth/wechat/login', {
       code,
       ...(clientContext ? { clientContext } : {}),
     })
     assertSession(stamp)
-    validateLoginResult(result)
-    authenticatedUserId = typeof result.userId === 'string' ? result.userId : ''
     setToken(result.accessToken)
-    state.sessionExpiresAt = validExpiry(result.expiresAt) ? result.expiresAt : ''
-    state.profileCompletion =
-      typeof result.profileCompletion === 'boolean' ? result.profileCompletion : null
-    const selectedCampus = state.campuses.find((campus) => campus.id === state.campusId)
-    state.user = {
-      id: authenticatedUserId,
-      name: '',
-      schoolId: selectedCampus?.schoolId,
-      school: selectedCampus?.school || '',
-      campusId: state.campusId,
-      loggedIn: true,
-      verification: 'NONE',
-      runner: false,
-    }
-    try {
-      await refresh()
-      assertSession(stamp)
-    } catch (error) {
-      assertSession(stamp)
-      if (error instanceof ApiError && [401, 403].includes(error.httpStatus || 0)) {
-        clearLocalAuth()
-        throw error
-      }
-      // The token response is authoritative. A later context/network failure
-      // stays visible through networkState without turning into a fake login
-      // failure or discarding the confirmed in-memory session.
-      return
-    }
-    if (!state.user.loggedIn) {
-      clearLocalAuth()
-      throw new ApiError(
-        'SESSION_NOT_ESTABLISHED',
-        '登录凭证已返回，但后端未建立可用会话，请稍后重试。',
-      )
-    }
+    await refresh()
+    assertSession(stamp)
   },
   async logout() {
     invalidateSession()
-    let sendRemoteLogout: ReturnType<typeof prepareLogoutRequest> | null = null
-    if (isDemo) {
-      suspendDemoSession()
-    } else {
-      // Invalidate private state first, then let transport clear and capture
-      // the old Bearer token before any remote revocation request is sent.
-      clearLocalSessionState()
-      sendRemoteLogout = prepareLogoutRequest()
-    }
+    const remote = isDemo ? null : request('POST', '/auth/logout')
+    if (isDemo) suspendDemoSession()
+    else clearPrivateWorkspace()
+    setToken('')
     state.networkState = 'ready'
     state.networkError = ''
-    if (sendRemoteLogout) {
-      try {
-        await sendRemoteLogout()
-      } catch (error) {
-        const apiError = error instanceof ApiError ? error : undefined
-        throw new ApiError(
-          'LOGOUT_REMOTE_UNKNOWN',
-          '本机已退出，但服务端会话撤销结果未确认；请勿在共享设备继续使用。',
-          apiError?.traceId,
-          'RETRY',
-          apiError?.currentVersion,
-          apiError?.currentState,
-          apiError?.httpStatus,
-        )
-      }
-    }
+    if (remote) await remote
   },
   verify: (input: { name: string; studentId: string }) =>
     command('/verifications', input, () => {
@@ -629,133 +510,34 @@ export const api = {
   },
 }
 
-async function refreshPublicContent(current: () => boolean) {
-  const campusId = state.campusId
-  const q = `?campusId=${encodeURIComponent(campusId)}&limit=50`
-  const definitions = [
-    ['market', '/market/listings' + q, 'products'],
-    ['errand', '/errands/available' + q, 'errands'],
-    ['activity', '/activities' + q, 'activities'],
-  ] as const
-  for (const [service] of definitions) {
-    state.contentState[service] = 'loading'
-    state.contentError[service] = ''
-  }
-  const results = await Promise.allSettled(
-    definitions.map(([, path]) => request<{ items: unknown[] }>('GET', path)),
-  )
-  if (!current() || campusId !== state.campusId) return
-  results.forEach((result, index) => {
-    const [service, , field] = definitions[index]
-    if (result.status === 'fulfilled' && Array.isArray(result.value?.items)) {
-      assignPublicItems(field, result.value.items)
-      state.contentState[service] = 'ready'
-      state.contentError[service] = ''
-    } else {
-      assignPublicItems(field, [])
-      state.contentState[service] = 'error'
-      state.contentError[service] = errorMessage(
-        result.status === 'rejected' ? result.reason : undefined,
-        '该功能的真实接口暂不可用，没有加载演示数据。',
-      )
-    }
-  })
-}
-
-function assignPublicItems(field: 'products' | 'errands' | 'activities', items: unknown[]) {
-  if (field === 'products') state.products = items as Product[]
-  else if (field === 'errands') state.errands = items as Errand[]
-  else state.activities = items as Activity[]
-}
-
-function clearPublicContent() {
-  state.products = []
-  state.errands = []
-  state.activities = []
-}
-
-function errorMessage(error: unknown, fallback: string) {
-  return error instanceof Error && error.message ? error.message : fallback
-}
-
-function clearLocalAuth() {
-  setToken('')
-  clearLocalSessionState()
-}
-
-function clearLocalSessionState() {
-  authenticatedUserId = ''
-  state.sessionExpiresAt = ''
-  state.profileCompletion = null
-  clearPrivateWorkspace()
-}
-
-function isWechatMiniProgram() {
-  try {
-    const platform = (
-      uni as unknown as { getSystemInfoSync?: () => { uniPlatform?: string } }
-    ).getSystemInfoSync?.().uniPlatform
-    return platform === 'mp-weixin'
-  } catch {
-    return false
-  }
-}
-
-function validateLoginResult(result: WechatLoginDTO) {
-  if (!result || typeof result.accessToken !== 'string' || !result.accessToken)
-    throw new ApiError('CONTRACT_INVALID', '登录响应缺少有效的 accessToken。')
-}
-
-function validExpiry(value: unknown): value is string {
-  return (
-    typeof value === 'string' &&
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
-  )
-}
-
-function normalizeContext(
-  raw: ContextDTO,
-  directory?: SchoolsResponseDTO,
-): {
+function normalizeContext(raw: ContextDTO, directory?: SchoolsResponseDTO): {
   campuses: Campus[]
   campusId: string
   user: User
 } {
-  type RawCampus = CampusContextDTO &
-    Partial<Campus> & { schoolName?: string; school?: string; schoolStatus?: string }
+  type RawCampus = CampusContextDTO & Partial<Campus> & { schoolName?: string; school?: string }
   type RawSchool = SchoolContextDTO & { id?: string }
-  if (directory && !Array.isArray(directory.items))
-    throw new ApiError('CONTRACT_INVALID', '学校目录响应缺少 items 数组。')
-  if (directory) validateCanonicalDirectory(directory)
   const contextSchools = (raw.schools || (raw.school ? [raw.school] : [])) as RawSchool[]
   const directorySchools = (directory?.items || []) as RawSchool[]
   const allSchools = [...directorySchools, ...contextSchools]
   const schoolNames = new Map<string, string>()
   const schoolRecords = new Map<string, RawSchool>()
   for (const school of allSchools) {
-    const schoolId = wireId(school.schoolId, school.id, 'schoolId')
+    const schoolId = school.schoolId || school.id || ''
     // The public directory is authoritative for shared school metadata;
     // context is only a compatibility fallback for records absent there.
     if (schoolId && !schoolRecords.has(schoolId)) schoolRecords.set(schoolId, school)
-    if (schoolId && school.name && !schoolNames.has(schoolId))
-      schoolNames.set(schoolId, school.name)
+    if (schoolId && school.name && !schoolNames.has(schoolId)) schoolNames.set(schoolId, school.name)
   }
 
   // Directory records are retained even when context only contains the
   // selected campus. Context records are merged as a compatibility fallback.
   const records: RawCampus[] = []
   const add = (campus: RawCampus, parent?: RawSchool) => {
-    const id = wireId(campus.campusId, campus.id, 'campusId', true)
-    const schoolId =
-      wireId(campus.schoolId, undefined, 'schoolId') ||
-      wireId(parent?.schoolId, parent?.id, 'schoolId', true)
-    const normalized = {
-      ...campus,
-      campusId: id,
-      schoolId,
-      schoolName: campus.schoolName || parent?.name,
-      schoolStatus: parent?.status,
-    }
+    const id = campus.campusId || campus.id || ''
+    if (!id) return
+    const schoolId = campus.schoolId || parent?.schoolId || parent?.id || ''
+    const normalized = { ...campus, campusId: id, schoolId, schoolName: campus.schoolName || parent?.name }
     const existing = records.findIndex((item) => (item.campusId || item.id) === id)
     if (existing >= 0) {
       // Prefer the public directory's metadata, while filling missing fields
@@ -766,23 +548,17 @@ function normalizeContext(
     }
     records.push(normalized)
   }
-  for (const school of directorySchools)
-    for (const campus of school.campuses || []) add(campus as RawCampus, school)
-  for (const school of contextSchools)
-    for (const campus of school.campuses || []) add(campus as RawCampus, school)
+  for (const school of directorySchools) for (const campus of school.campuses || []) add(campus as RawCampus, school)
+  for (const school of contextSchools) for (const campus of school.campuses || []) add(campus as RawCampus, school)
   for (const campus of (raw.campuses || []) as Array<RawCampus>)
     add(campus, raw.school as RawSchool | undefined)
   if (raw.campus) add(raw.campus as RawCampus, raw.school as RawSchool | undefined)
 
   const campuses: Campus[] = records.map((dto) => {
-    const id = wireId(dto.campusId, dto.id, 'campusId', true)
-    const schoolId = wireId(dto.schoolId, undefined, 'schoolId', true)
+    const id = dto.campusId || dto.id || ''
+    const schoolId = dto.schoolId || ''
     const schoolName =
-      dto.schoolName ||
-      dto.school ||
-      (schoolId ? schoolNames.get(schoolId) : '') ||
-      raw.school?.name ||
-      ''
+      dto.schoolName || dto.school || (schoolId ? schoolNames.get(schoolId) : '') || raw.school?.name || ''
     return {
       id,
       // Keep schoolId on every campus; switchCampus uses it for canonical PUT.
@@ -790,49 +566,17 @@ function normalizeContext(
       school: schoolName,
       name: dto.name,
       shortName: dto.shortName || dto.name,
-      enabled: campusEnabled(dto) && campusEnabled({ status: dto.schoolStatus }),
+      enabled: campusEnabled(dto),
       timezone: dto.timezone || (schoolId ? schoolRecords.get(schoolId)?.timezone : undefined),
-      configVersion:
-        dto.configVersion || (schoolId ? schoolRecords.get(schoolId)?.configVersion : undefined),
+      configVersion: dto.configVersion || (schoolId ? schoolRecords.get(schoolId)?.configVersion : undefined),
     }
   })
 
-  const contextCampusId = wireId(raw.campusId || raw.campus?.campusId, raw.campus?.id, 'campusId')
-  const contextCampus = campuses.find((campus) => campus.id === contextCampusId)
-  const campusId =
-    (contextCampus?.enabled ? contextCampus.id : '') ||
-    campuses.find((campus) => campus.enabled)?.id ||
-    ''
+  const contextCampusId = raw.campusId || raw.campus?.campusId || raw.campus?.id || ''
+  const campusId = contextCampusId || campuses.find((campus) => campus.enabled)?.id || ''
   const selected = raw.campus || campuses.find((campus) => campus.id === campusId)
   const user = normalizeUser(raw.user, selected, raw.school, raw.loggedIn)
   return { campuses, campusId, user }
-}
-
-function validateCanonicalDirectory(directory: SchoolsResponseDTO) {
-  for (const school of directory.items) {
-    const schoolId = canonicalDirectoryId(school.schoolId, 'schoolId')
-    canonicalDirectoryStatus(school.status, '学校')
-    if (!Array.isArray(school.campuses))
-      throw new ApiError('CONTRACT_INVALID', '学校目录中的 campuses 必须是数组。')
-    for (const campus of school.campuses) {
-      canonicalDirectoryId(campus.campusId, 'campusId')
-      const campusSchoolId = canonicalDirectoryId(campus.schoolId, 'schoolId')
-      if (campusSchoolId !== schoolId)
-        throw new ApiError('CONTRACT_INVALID', '学校目录中的校区归属与父学校不一致。')
-      canonicalDirectoryStatus(campus.status, '校区')
-    }
-  }
-}
-
-function canonicalDirectoryId(value: unknown, field: 'schoolId' | 'campusId') {
-  if (typeof value !== 'string' || !value.trim())
-    throw new ApiError('CONTRACT_INVALID', `学校目录中的 ${field} 必须是非空字符串。`)
-  return value
-}
-
-function canonicalDirectoryStatus(value: unknown, subject: '学校' | '校区') {
-  if (value !== 'ENABLED')
-    throw new ApiError('CONTRACT_INVALID', `学校目录中的${subject}状态必须是 ENABLED。`)
 }
 
 function campusEnabled(dto: { status?: string; enabled?: boolean }) {
@@ -840,25 +584,8 @@ function campusEnabled(dto: { status?: string; enabled?: boolean }) {
     const status = dto.status.toUpperCase()
     if (status === 'ENABLED' || status === 'ACTIVE') return true
     if (status === 'DISABLED' || status === 'INACTIVE') return false
-    return false
   }
   return dto.enabled !== false
-}
-
-function wireId(
-  canonical: unknown,
-  legacy: unknown,
-  field: 'schoolId' | 'campusId',
-  required = false,
-) {
-  const value = canonical ?? legacy
-  if (value === undefined || value === null || value === '') {
-    if (required) throw new ApiError('CONTRACT_INVALID', `学校目录中的 ${field} 缺失。`)
-    return ''
-  }
-  if (typeof value !== 'string' || !value.trim())
-    throw new ApiError('CONTRACT_INVALID', `${field} 必须是后端返回的非空字符串。`)
-  return value
 }
 
 function normalizeUser(
@@ -869,7 +596,7 @@ function normalizeUser(
 ): User {
   const value = (raw || {}) as ContextUserDTO & Partial<User>
   return {
-    id: value.userId || value.id || (contextLoggedIn ? authenticatedUserId : ''),
+    id: value.userId || value.id || '',
     name: value.displayName || value.name || '',
     schoolId: value.schoolId || campus?.schoolId || school?.schoolId,
     school: value.school || school?.name || (campus as Campus | undefined)?.school || '',
